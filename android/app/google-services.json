@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "853533774101",
+    "project_id": "allinbest-project",
+    "storage_bucket": "allinbest-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:853533774101:android:1c21563102974f89ab191c",
+        "android_client_info": {
+          "package_name": "com.empire.allinbest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "853533774101-628rebflmcifc0rbe3rau5o8di6rfum2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0ofc2IkBKtvpbCH7opOGYknXCStenIqQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "853533774101-628rebflmcifc0rbe3rau5o8di6rfum2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
