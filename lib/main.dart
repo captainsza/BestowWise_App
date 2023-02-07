@@ -1,3 +1,4 @@
+import 'package:allinbest/constants/routes.dart';
 import 'package:allinbest/views/login_view.dart';
 import 'package:allinbest/views/register_view/register_view.dart';
 import 'package:allinbest/views/verify_email_view.dart';
@@ -16,9 +17,9 @@ void main() {
       ),
       home: const HomePage(),
       routes: {
-        '/login/': (context) => const LoginView(),
-        '/Register/': (context) => const RegisterView(),
-        '/Rating/': (context) => const RatingView(),
+        loginRoute: (context) => const LoginView(),
+        RegisterRoute: (context) => const RegisterView(),
+        RatingRoute: (context) => const RatingView(),
       },
     ),
   );
@@ -79,7 +80,7 @@ class _RatingViewState extends State<RatingView> {
                   if (shouldLogout) {
                     await FirebaseAuth.instance.signOut();
                     Navigator.of(context).pushNamedAndRemoveUntil(
-                      '/login/',
+                      loginRoute,
                       (_) => false,
                     );
                   }
