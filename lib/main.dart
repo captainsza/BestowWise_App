@@ -13,13 +13,14 @@ void main() {
     MaterialApp(
       title: 'All in Best',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.deepPurple,
       ),
       home: const HomePage(),
       routes: {
         loginRoute: (context) => const LoginView(),
         RegisterRoute: (context) => const RegisterView(),
         RatingRoute: (context) => const RatingView(),
+        VerifyEmailRoute: (context) => const VerifyEmailView(),
       },
     ),
   );
@@ -42,12 +43,11 @@ class HomePage extends StatelessWidget {
               if (user.emailVerified) {
                 return const RatingView();
               } else {
-                return const LoginView();
+                return const VerifyEmailView();
               }
             } else {
-              return const VerifyEmailView();
+              return const LoginView();
             }
-
           default:
             return const CircularProgressIndicator();
         }
@@ -114,13 +114,13 @@ Future<bool> showLogOutDialog(BuildContext context) {
             onPressed: () {
               Navigator.of(context).pop(false);
             },
-            child: const Text('Cancel'),
+            child: const Icon(Icons.cancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(true);
             },
-            child: const Text('Log Out'),
+            child: const Icon(Icons.logout),
           ),
         ],
       );

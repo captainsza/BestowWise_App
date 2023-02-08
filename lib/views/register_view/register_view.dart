@@ -1,8 +1,6 @@
 import 'package:allinbest/constants/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:developer' as devtools show log;
 import 'package:flutter/material.dart';
-
 import '../../utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
@@ -40,7 +38,7 @@ class _RegisterViewState extends State<RegisterView> {
         children: [
           TextField(
             controller: _email,
-            enableSuggestions: true,
+            enableSuggestions: false,
             autocorrect: false,
             decoration: const InputDecoration(hintText: "enter your mail here"),
           ),
@@ -50,20 +48,22 @@ class _RegisterViewState extends State<RegisterView> {
             enableSuggestions: false,
             autocorrect: false,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(hintText: "give a password"),
+            decoration: const InputDecoration(
+              hintText: "give a password",
+            ),
           ),
           TextButton(
             onPressed: () async {
-              // ...
-
               final email = _email.text;
               final password = _password.text;
-
               try {
-                final UserCredential = await FirebaseAuth.instance
-                    .createUserWithEmailAndPassword(
-                        email: email, password: password);
-                devtools.log(UserCredential.toString());
+                await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                  email: email,
+                  password: password,
+                );
+                final user = FirebaseAuth.instance.currentUser;
+                Navigator.of(context).pushNamed(VerifyEmailRoute);
+                await user?.sendEmailVerification();
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'weak-password') {
                   await showErrorDialog(
@@ -78,9 +78,19 @@ class _RegisterViewState extends State<RegisterView> {
                 } else if (e.code == 'invalid-email') {
                   await showErrorDialog(
                     context,
-                    'Its not a valid email to use',
+                    'Its invalid email to use',
+                  );
+                } else {
+                  await showErrorDialog(
+                    context,
+                    'Error: ${e.code}',
                   );
                 }
+              } catch (e) {
+                await showErrorDialog(
+                  context,
+                  e.toString(),
+                );
               }
             },
             child: const Text('Register'),
