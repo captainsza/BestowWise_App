@@ -1,7 +1,9 @@
 import 'package:allinbest/services/auth/auth_service.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import '../constants/routes.dart';
 import '../enum/menu_action.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class RatingView extends StatefulWidget {
   const RatingView({super.key});
@@ -15,7 +17,8 @@ class _RatingViewState extends State<RatingView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Main'),
+        centerTitle: true,
+        title: const Text('All In Best'),
         actions: [
           PopupMenuButton<MenuAction>(
             onSelected: (value) async {
@@ -24,6 +27,7 @@ class _RatingViewState extends State<RatingView> {
                   final shouldLogout = await showLogOutDialog(context);
                   if (shouldLogout) {
                     await AuthService.firebase().logout();
+                    // ignore: use_build_context_synchronously
                     Navigator.of(context).pushNamedAndRemoveUntil(
                       loginRoute,
                       (_) => false,
@@ -42,7 +46,35 @@ class _RatingViewState extends State<RatingView> {
           )
         ],
       ),
-      body: const Text('Hello world!'),
+      body: const Center(),
+      floatingActionButton: SpeedDial(
+          icon: Icons.add,
+          backgroundColor: Colors.deepPurple,
+          children: [
+            SpeedDialChild(
+              child: const Icon(Icons.category, color: Colors.white),
+              label: 'Add New Category',
+              backgroundColor: Colors.deepPurple,
+              onTap: () async {
+                final databaseReference =
+                    FirebaseDatabase.instance.ref().child("categories");
+                final categoryId = databaseReference.push().key;
+
+                var cat = await databaseReference.child(categoryId!).set({
+                  "name": "New Category",
+                  "subjects": [
+                    'hi my name is dude',
+                  ],
+                });
+              },
+            ),
+            SpeedDialChild(
+              child: const Icon(Icons.reviews, color: Colors.white),
+              label: 'Add new category object',
+              backgroundColor: Colors.deepPurple,
+              onTap: () {},
+            ),
+          ]),
     );
   }
 }

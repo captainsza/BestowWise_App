@@ -39,6 +39,11 @@ dependencies:
   firebase_auth: ^4.2.5
   cloud_firestore: ^4.3.1
   firebase_analytics: ^10.1.0
+  tmdb_api: ^2.1.4
+  ff_stars: ^3.0.0
+  flutter_speed_dial: ^6.2.0
+  firebase_database: ^10.0.10
+  image_picker: ^0.8.6+1
 
 dev_dependencies:
   flutter_test:

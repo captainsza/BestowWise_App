@@ -72,12 +72,12 @@ class _LoginViewState extends State<LoginView> {
                 final user = AuthService.firebase().currentUser;
                 if (user?.isEmailVerified ?? false) {
                   Navigator.of(context).pushNamedAndRemoveUntil(
-                    RatingRoute,
+                    ratingRoute,
                     (route) => false,
                   );
                 } else {
                   Navigator.of(context).pushNamedAndRemoveUntil(
-                    VerifyEmailRoute,
+                    verifyEmailRoute,
                     (route) => true,
                   );
                 }
@@ -103,11 +103,11 @@ class _LoginViewState extends State<LoginView> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pushNamedAndRemoveUntil(
-                RegisterRoute,
+                registerRoute,
                 (route) => false,
               );
             },
-            child: const Text('Not Registr yet? Register here!}'),
+            child: const Text('Not Registr yet? Register here!'),
           )
         ],
       ),

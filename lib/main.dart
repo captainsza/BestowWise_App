@@ -1,5 +1,6 @@
 import 'package:allinbest/constants/routes.dart';
 import 'package:allinbest/services/auth/auth_service.dart';
+import 'package:allinbest/views/AddCategory.dart';
 import 'package:allinbest/views/login_view.dart';
 import 'package:allinbest/views/rating_view.dart';
 import 'package:allinbest/views/register_view/register_view.dart';
@@ -18,9 +19,10 @@ void main() {
       home: const HomePage(),
       routes: {
         loginRoute: (context) => const LoginView(),
-        RegisterRoute: (context) => const RegisterView(),
-        RatingRoute: (context) => const RatingView(),
-        VerifyEmailRoute: (context) => const VerifyEmailView(),
+        registerRoute: (context) => const RegisterView(),
+        ratingRoute: (context) => const RatingView(),
+        verifyEmailRoute: (context) => const VerifyEmailView(),
+        addCategoryRoute: (context) => const AddCategoryPage()
       },
     ),
   );
