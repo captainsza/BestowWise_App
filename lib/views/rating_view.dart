@@ -13,6 +13,8 @@ class RatingView extends StatefulWidget {
 }
 
 class _RatingViewState extends State<RatingView> {
+  get index => null;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +48,28 @@ class _RatingViewState extends State<RatingView> {
           )
         ],
       ),
-      body: const Center(),
+      body: Center(
+        child: ListView(
+          children: <Widget>[
+            SizedBox(
+              height: 50.0,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: List.generate(10, (int index) {
+                  return Card(
+                    color: Colors.deepPurpleAccent,
+                    child: SizedBox(
+                      width: 50.0,
+                      height: 50.0,
+                      child: Text("$index"),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
+        ),
+      ),
       floatingActionButton: SpeedDial(
           icon: Icons.add,
           backgroundColor: Colors.deepPurple,
@@ -60,11 +83,61 @@ class _RatingViewState extends State<RatingView> {
                     FirebaseDatabase.instance.ref().child("categories");
                 final categoryId = databaseReference.push().key;
 
-                var cat = await databaseReference.child(categoryId!).set({
-                  "name": "New Category",
-                  "subjects": [
-                    'hi my name is dude',
-                  ],
+                String categoryName = '';
+                List<String> categorySubjects = [];
+
+                // Get user input for the category name
+                await showDialog<void>(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Enter Category Name'),
+                      content: TextField(
+                        onChanged: (value) {
+                          categoryName = value;
+                        },
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+
+                // Get user input for the category subjects
+                // ignore: use_build_context_synchronously
+                await showDialog<void>(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Enter Category Subjects'),
+                      content: TextField(
+                        onChanged: (value) {
+                          categorySubjects = value.split(',');
+                        },
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+
+                // Add the new category to the Firebase database
+                await databaseReference.child(categoryId!).set({
+                  "index": index,
+                  "name": categoryName,
+                  "subjects": categorySubjects,
                 });
               },
             ),
