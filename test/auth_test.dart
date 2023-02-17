@@ -41,10 +41,7 @@ void main() {
       );
       expect(badEmailUser,
           throwsA(const TypeMatcher<UserNOtFoundAuthException>()));
-      final badPassworduser = provider.createUser(
-        email: 'kuchbhi@ka.com',
-        password: 'password',
-      );
+
       expect(badEmailUser,
           throwsA(const TypeMatcher<WrongPasswordAuthException>()));
       final user = await provider.createUser(

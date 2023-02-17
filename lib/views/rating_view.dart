@@ -1,5 +1,7 @@
 import 'package:allinbest/services/auth/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../constants/routes.dart';
 import '../enum/menu_action.dart';
@@ -15,6 +17,26 @@ class RatingView extends StatefulWidget {
 class _RatingViewState extends State<RatingView> {
   get index => null;
 
+  Stream<List<Map<String, dynamic>>> getCategoryStream() {
+    final databaseReference =
+        FirebaseDatabase.instance.ref().child("categories");
+    return databaseReference.onValue.map((event) {
+      final categories = <Map<String, dynamic>>[];
+      final data = event.snapshot.value as Map<dynamic, dynamic>?;
+
+      if (data != null) {
+        // ignore: avoid_function_literals_in_foreach_calls
+        data.entries.forEach((entry) {
+          final category = Map<String, dynamic>.from(entry.value);
+          categories.add(category);
+        });
+      }
+      return categories;
+    });
+  }
+
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,6 +45,7 @@ class _RatingViewState extends State<RatingView> {
         title: const Text('All In Best'),
         actions: [
           PopupMenuButton<MenuAction>(
+            icon: const Icon(CupertinoIcons.profile_circled),
             onSelected: (value) async {
               switch (value) {
                 case MenuAction.logout:
@@ -41,34 +64,50 @@ class _RatingViewState extends State<RatingView> {
               return const [
                 PopupMenuItem<MenuAction>(
                   value: MenuAction.logout,
-                  child: Text('Log Out'),
+                  child: Text(
+                    'Log Out',
+                  ),
                 ),
               ];
             },
           )
         ],
       ),
-      body: Center(
-        child: ListView(
-          children: <Widget>[
-            SizedBox(
-              height: 50.0,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: List.generate(10, (int index) {
-                  return Card(
-                    color: Colors.deepPurpleAccent,
-                    child: SizedBox(
-                      width: 50.0,
-                      height: 50.0,
-                      child: Text("$index"),
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: getCategoryStream(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final categories = snapshot.data!;
+
+          final userAddedCategories =
+              categories.where((category) => category['name'] != null).toList();
+
+          return SizedBox(
+            height: 50.0,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: userAddedCategories.length,
+              itemBuilder: (context, index) {
+                final category = userAddedCategories[index];
+                return Card(
+                  color: Colors.deepPurpleAccent,
+                  child: SizedBox(
+                    width: 100.0,
+                    height: 50.0,
+                    child: Center(
+                      child: Text(category['name'] ?? ''),
                     ),
-                  );
-                }),
-              ),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          );
+        },
       ),
       floatingActionButton: SpeedDial(
           icon: Icons.add,

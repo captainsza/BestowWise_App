@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 typedef FFStarsChanged = void Function(double realStars, double selectedStars);
 
 class FFStars extends StatefulWidget {
-  FFStars({
+  const FFStars({
+    super.key,
     required this.normalStar,
     required this.selectedStar,
     this.starCount = 5,
