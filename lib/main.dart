@@ -4,7 +4,6 @@ import 'package:allinbest/views/login_view.dart';
 import 'package:allinbest/views/rating_view.dart';
 import 'package:allinbest/views/register_view/register_view.dart';
 import 'package:allinbest/views/verify_email_view.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
 
@@ -12,6 +11,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'All in Best',
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
