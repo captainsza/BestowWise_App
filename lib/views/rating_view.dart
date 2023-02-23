@@ -18,48 +18,49 @@ class _RatingViewState extends State<RatingView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text(
-            'All In Best',
-          ),
-          flexibleSpace: const Image(
-            image: AssetImage('assets/Images/back.png'),
-            fit: BoxFit.cover,
-          ),
-          backgroundColor: Colors.transparent,
-          actions: [
-            PopupMenuButton<MenuAction>(
-              icon: const Icon(CupertinoIcons.profile_circled),
-              onSelected: (value) async {
-                switch (value) {
-                  case MenuAction.logout:
-                    final shouldLogout = await showLogOutDialog(context);
-                    if (shouldLogout) {
-                      await AuthService.firebase().logout();
-                      // ignore: use_build_context_synchronously
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        loginRoute,
-                        (_) => false,
-                      );
-                    }
-                }
-              },
-              itemBuilder: (context) {
-                return const [
-                  PopupMenuItem<MenuAction>(
-                    value: MenuAction.logout,
-                    child: Text(
-                      'Log Out',
-                    ),
-                  ),
-                ];
-              },
-            )
-          ],
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text(
+          'All In Best',
         ),
-        body: const CategoryBody(),
-        floatingActionButton: const UserAdd());
+        flexibleSpace: const Image(
+          image: AssetImage('assets/Images/back.png'),
+          fit: BoxFit.cover,
+        ),
+        backgroundColor: Colors.transparent,
+        actions: [
+          PopupMenuButton<MenuAction>(
+            icon: const Icon(CupertinoIcons.profile_circled),
+            onSelected: (value) async {
+              switch (value) {
+                case MenuAction.logout:
+                  final shouldLogout = await showLogOutDialog(context);
+                  if (shouldLogout) {
+                    await AuthService.firebase().logout();
+                    // ignore: use_build_context_synchronously
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      loginRoute,
+                      (_) => false,
+                    );
+                  }
+              }
+            },
+            itemBuilder: (context) {
+              return const [
+                PopupMenuItem<MenuAction>(
+                  value: MenuAction.logout,
+                  child: Text(
+                    'Log Out',
+                  ),
+                ),
+              ];
+            },
+          )
+        ],
+      ),
+      body: const CategoryBody(),
+      floatingActionButton: const UserAdd(),
+    );
   }
 }
 

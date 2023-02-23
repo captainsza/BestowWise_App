@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../stream/RatingStream.dart';
+
 // ...
 class UserAdd extends StatefulWidget {
   const UserAdd({super.key});
@@ -14,7 +16,41 @@ class UserAdd extends StatefulWidget {
 }
 
 class _UserAddState extends State<UserAdd> {
-  get index => null;
+  String? index;
+  List<String> categoryNames = [];
+  List<String> objNames = [];
+
+// Function to check if category name is empty or already exists
+  bool validateCategoryName(String categoryName) {
+    if (categoryName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Category name cannot be empty!'),
+        ),
+      );
+      return false;
+    } else if (categoryNames.contains(categoryName)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Category name already exists!'),
+        ),
+      );
+      return false;
+    }
+    return true;
+  }
+
+  bool validateobj(String objName) {
+    if (objName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('This entity name cannot be empty!'),
+        ),
+      );
+      return false;
+    }
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +85,9 @@ class _UserAddState extends State<UserAdd> {
                     actions: [
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop();
+                          if (validateCategoryName(categoryName)) {
+                            Navigator.of(context).pop();
+                          }
                         },
                         child: const Text('OK'),
                       ),
@@ -58,35 +96,39 @@ class _UserAddState extends State<UserAdd> {
                 },
               );
               // Get user input for the category subjects
-              // ignore: use_build_context_synchronously
-              await showDialog<void>(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Role of Category'),
-                    content: TextField(
-                      onChanged: (value) {
-                        categorySubjects = value.split(',');
-                      },
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
+              if (validateCategoryName(categoryName)) {
+                // Add category name to list of existing names
+                categoryNames.add(categoryName);
+                // Get user input for the category subjects
+                // ignore: use_build_context_synchronously
+                await showDialog<void>(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Role of Category'),
+                      content: TextField(
+                        onChanged: (value) {
+                          categorySubjects = value.split(',');
                         },
-                        child: const Text('OK'),
                       ),
-                    ],
-                  );
-                },
-              );
-
-              // Add the new category to the Firebase database
-              await databaseReference.child(categoryId!).set({
-                "index": index,
-                "name": categoryName,
-                "subjects": categorySubjects,
-              });
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+                // Add the new category to the Firebase database
+                await databaseReference.child(categoryId!).set({
+                  "index": index,
+                  "name": categoryName,
+                  "subjects": categorySubjects,
+                });
+              }
             },
           ),
           SpeedDialChild(
@@ -98,13 +140,11 @@ class _UserAddState extends State<UserAdd> {
                   .ref()
                   .child("categories")
                   .child('object');
-
               final objId = databaseReference.push().key;
               String objName = '';
               List<String> objSubjects = [];
               String? imageUrl;
-
-              // Get user input for the category name and image
+// Get user input for the object name and image
               await showDialog<void>(
                 context: context,
                 builder: (context) {
@@ -118,60 +158,32 @@ class _UserAddState extends State<UserAdd> {
                             objName = value;
                           },
                         ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            TextButton(
-                              onPressed: () async {
-                                final pickedFile =
-                                    await ImagePicker().pickImage(
-                                  source: ImageSource.gallery,
-                                );
-                                if (pickedFile != null) {
-                                  final file = File(pickedFile.path);
-                                  final uploadTask = FirebaseStorage.instance
-                                      .ref()
-                                      .child('images/$objId.jpg')
-                                      .putFile(file);
-                                  final snapshot =
-                                      await uploadTask.whenComplete(() {});
-                                  final url =
-                                      await snapshot.ref.getDownloadURL();
-                                  imageUrl = url;
-                                }
-                              },
-                              child: const Text('Gallery'),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                final pickedFile =
-                                    await ImagePicker().pickImage(
-                                  source: ImageSource.camera,
-                                );
-                                if (pickedFile != null) {
-                                  final file = File(pickedFile.path);
-                                  final uploadTask = FirebaseStorage.instance
-                                      .ref()
-                                      .child('images/$objId.jpg')
-                                      .putFile(file);
-                                  final snapshot =
-                                      await uploadTask.whenComplete(() {});
-                                  final url =
-                                      await snapshot.ref.getDownloadURL();
-                                  imageUrl = url;
-                                }
-                              },
-                              child: const Text('Camera'),
-                            ),
-                          ],
+                        const SizedBox(height: 20.0),
+                        TextButton(
+                          onPressed: () async {
+                            final pickedFile = await ImagePicker().pickImage(
+                              source: ImageSource.gallery,
+                            );
+                            if (pickedFile != null) {
+                              final file = File(pickedFile.path);
+                              final storageReference = FirebaseStorage.instance
+                                  .ref()
+                                  .child('images/$objName');
+                              await storageReference.putFile(file);
+                              imageUrl =
+                                  await storageReference.getDownloadURL();
+                            }
+                          },
+                          child: const Text('Select Image'),
                         ),
                       ],
                     ),
                     actions: [
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop();
+                          if (validateobj(objName)) {
+                            Navigator.of(context).pop();
+                          }
                         },
                         child: const Text('OK'),
                       ),
@@ -180,37 +192,64 @@ class _UserAddState extends State<UserAdd> {
                 },
               );
 
-              // Get user input for the category subjects
-              // ignore: use_build_context_synchronously
-              await showDialog<void>(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Enter your summary about this thing:'),
-                    content: TextField(
-                      onChanged: (value) {
-                        objSubjects = value.split(',');
-                      },
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
+// Get user input for the object category
+              if (validateobj(objName)) {
+                final categories = await getCategoryStream().first;
+                final categoryNames = categories
+                    .map((category) => category['name'] as String)
+                    .toList();
+                // ignore: use_build_context_synchronously
+                final selectedCategoryIndex = await showDialog<int>(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Select Category'),
+                      content: DropdownButton<int>(
+                        value: null,
+                        isExpanded: true,
+                        onChanged: (value) {
+                          Navigator.of(context).pop(value);
                         },
-                        child: const Text('OK'),
+                        items: categories.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final category = entry.value;
+                          return DropdownMenuItem<int>(
+                            value: index,
+                            child: Text(category['name'] as String),
+                          );
+                        }).toList(),
                       ),
-                    ],
-                  );
-                },
-              );
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(null);
+                          },
+                          child: const Text('CANCEL'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(selectedCategoryIndex);
+                  },
+                  child: const Text('OK'),
+                );
 
-              // Add the new category to the Firebase database
-              await databaseReference.child(objId!).set({
-                "index": index,
-                "name": objName,
-                "subjects": objSubjects,
-                "imageUrl": imageUrl,
-              });
+                if (selectedCategoryIndex != null) {
+                  final category = categories[selectedCategoryIndex];
+                  final categoryId = category['id'];
+
+                  // Add the new object to the Firebase database
+                  await databaseReference.child(objId!).set({
+                    "name": objName,
+                    "subjects": objSubjects,
+                    "imageUrl": imageUrl,
+                    "category": categoryId,
+                  });
+                }
+              }
             },
           ),
         ]);
