@@ -1,5 +1,6 @@
 import 'package:allinbest/services/auth/auth_service.dart';
 import 'package:allinbest/usercreated/createbyuser.dart';
+import 'package:allinbest/utilities/deco.dart';
 import 'package:allinbest/views/body_ratingview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -46,11 +47,25 @@ class _RatingViewState extends State<RatingView> {
               }
             },
             itemBuilder: (context) {
-              return const [
+              return [
                 PopupMenuItem<MenuAction>(
                   value: MenuAction.logout,
-                  child: Text(
-                    'Log Out',
+                  child: Row(
+                    children: const [
+                      Icon(
+                        Icons.logout,
+                        color: Colors.deepPurple, // Change the icon color
+                      ),
+                      SizedBox(width: 3), // Add some spacing
+                      Text(
+                        'Log Out',
+                        style: TextStyle(
+                          fontSize: 10, // Change the font size
+                          fontWeight: FontWeight.bold, // Add some boldness
+                          color: Colors.black, // Change the text color
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ];

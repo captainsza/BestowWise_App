@@ -48,111 +48,134 @@ class _LoginViewState extends State<LoginView> {
             height: 200,
             scale: 2.5,
           ),
-          Container(
-            padding:
-                const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
-            child: Column(
-              children: [
-                TextField(
+          Column(
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                child: TextField(
                   controller: _email,
                   enableSuggestions: false,
                   autocorrect: false,
                   decoration: textInputDecoration.copyWith(
-                    hintText: 'Enter your Email',
+                    // hintText: 'Enter your Email',
+                    labelText: 'Email',
                   ),
                 ),
-                TextField(
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                child: TextField(
                   controller: _password,
                   obscureText: true,
                   enableSuggestions: false,
                   autocorrect: false,
                   keyboardType: TextInputType.emailAddress,
                   decoration: textInputDecoration.copyWith(
-                    hintText: 'Enter password',
+                    // hintText: 'Enter password',
+                    labelText: 'Password',
                   ),
                 ),
-                Container(
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              InkWell(
+                onTap: () async {
+                  final email = _email.text;
+                  final password = _password.text;
+                  try {
+                    await AuthService.firebase().login(
+                      email: email,
+                      password: password,
+                    );
+                    final user = AuthService.firebase().currentUser;
+                    if (user?.isEmailVerified ?? false) {
+                      // ignore: use_build_context_synchronously
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        ratingRoute,
+                        (route) => false,
+                      );
+                    } else {
+                      // ignore: use_build_context_synchronously
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        verifyEmailRoute,
+                        (route) => true,
+                      );
+                    }
+                  } on UserNOtFoundAuthException {
+                    await showErrorDialog(
+                      context,
+                      'User Not Found',
+                    );
+                  } on WrongPasswordAuthException {
+                    await showErrorDialog(
+                      context,
+                      'Given Passward is wrong',
+                    );
+                  } on GenericAuthException {
+                    await showErrorDialog(
+                      context,
+                      'Authentication error',
+                    );
+                  }
+                },
+                child: Container(
+                  decoration: const BoxDecoration(
+                      color: Colors.deepPurple,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
+                      )),
+                  width: MediaQuery.of(context).size.width - 150,
                   height: 50,
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  color: Colors.deepPurple,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      final email = _email.text;
-                      final password = _password.text;
-                      try {
-                        await AuthService.firebase().login(
-                          email: email,
-                          password: password,
-                        );
-                        final user = AuthService.firebase().currentUser;
-                        if (user?.isEmailVerified ?? false) {
-                          // ignore: use_build_context_synchronously
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                            ratingRoute,
-                            (route) => false,
-                          );
-                        } else {
-                          // ignore: use_build_context_synchronously
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                            verifyEmailRoute,
-                            (route) => true,
-                          );
-                        }
-                      } on UserNOtFoundAuthException {
-                        await showErrorDialog(
-                          context,
-                          'User Not Found',
-                        );
-                      } on WrongPasswordAuthException {
-                        await showErrorDialog(
-                          context,
-                          'Given Passward is wrong',
-                        );
-                      } on GenericAuthException {
-                        await showErrorDialog(
-                          context,
-                          'Authentication error',
-                        );
-                      }
-                    },
-                    child: const Text(
+                  // padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  // color: Colors.deepPurple,
+
+                  child: const Center(
+                    child: Text(
                       'login',
                       style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
                         color: Colors.white,
                       ),
                     ),
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: const Text(
+                      'Dont have an account?',
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        registerRoute,
+                        (route) => false,
+                      );
+                    },
+                    child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: const Text(
-                        'Dont have an account?',
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pushNamedAndRemoveUntil(
-                          registerRoute,
-                          (route) => false,
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: const Text(
-                          ' Signup.',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        ' Signup.',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ],
       ),

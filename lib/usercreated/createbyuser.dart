@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -18,7 +18,7 @@ class UserAdd extends StatefulWidget {
 class _UserAddState extends State<UserAdd> {
   String? index;
   List<String> categoryNames = [];
-  List<String> objNames = [];
+  List<String> objNames = []; // create instance here
 
 // Function to check if category name is empty or already exists
   bool validateCategoryName(String categoryName) {
@@ -64,9 +64,8 @@ class _UserAddState extends State<UserAdd> {
             backgroundColor: Colors.deepPurple,
             onTap: () async {
               final databaseReference =
-                  FirebaseDatabase.instance.ref().child("categories");
-
-              final categoryId = databaseReference.push().key;
+                  FirebaseFirestore.instance.collection('categories');
+              final categoryId = databaseReference.doc().id;
 
               String categoryName = '';
               List<String> categorySubjects = [];
@@ -122,8 +121,8 @@ class _UserAddState extends State<UserAdd> {
                     );
                   },
                 );
-                // Add the new category to the Firebase database
-                await databaseReference.child(categoryId!).set({
+                // Add the new category to the Firestore database
+                await databaseReference.doc(categoryId).set({
                   "index": index,
                   "name": categoryName,
                   "subjects": categorySubjects,
@@ -136,15 +135,15 @@ class _UserAddState extends State<UserAdd> {
             label: 'Add Your liked Entity',
             backgroundColor: Colors.deepPurple,
             onTap: () async {
-              final databaseReference = FirebaseDatabase.instance
-                  .ref()
-                  .child("categories")
-                  .child('object');
-              final objId = databaseReference.push().key;
+              final collectionReference = FirebaseFirestore.instance
+                  .collection('categories')
+                  .doc('objects')
+                  .collection('items');
+
               String objName = '';
-              List<String> objSubjects = [];
               String? imageUrl;
-// Get user input for the object name and image
+
+              // Get user input for the object name and image
               await showDialog<void>(
                 context: context,
                 builder: (context) {
@@ -192,62 +191,44 @@ class _UserAddState extends State<UserAdd> {
                 },
               );
 
-// Get user input for the object category
+              // Get user input for the object category
               if (validateobj(objName)) {
                 final categories = await getCategoryStream().first;
                 final categoryNames = categories
                     .map((category) => category['name'] as String)
                     .toList();
                 // ignore: use_build_context_synchronously
-                final selectedCategoryIndex = await showDialog<int>(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: const Text('Select Category'),
-                      content: DropdownButton<int>(
-                        value: null,
-                        isExpanded: true,
-                        onChanged: (value) {
-                          Navigator.of(context).pop(value);
-                        },
-                        items: categories.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          final category = entry.value;
-                          return DropdownMenuItem<int>(
-                            value: index,
-                            child: Text(category['name'] as String),
-                          );
-                        }).toList(),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(null);
+                final selectedCategoryIndex = await showDialog<int?>(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text('Select Category'),
+                        content: DropdownButton<int>(
+                          value: null,
+                          isExpanded: true,
+                          onChanged: (value) {
+                            Navigator.of(context).pop(value);
                           },
-                          child: const Text('CANCEL'),
+                          items: categoryNames
+                              .asMap()
+                              .entries
+                              .map((entry) => DropdownMenuItem<int>(
+                                    value: entry.key,
+                                    child: Text(entry.value),
+                                  ))
+                              .toList(),
                         ),
-                      ],
-                    );
-                  },
-                );
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(selectedCategoryIndex);
-                  },
-                  child: const Text('OK'),
-                );
-
+                      );
+                    });
                 if (selectedCategoryIndex != null) {
-                  final category = categories[selectedCategoryIndex];
-                  final categoryId = category['id'];
-
-                  // Add the new object to the Firebase database
-                  await databaseReference.child(objId!).set({
-                    "name": objName,
-                    "subjects": objSubjects,
-                    "imageUrl": imageUrl,
-                    "category": categoryId,
-                  });
+                  final categoryId = categories[selectedCategoryIndex]['id'];
+                  await collectionReference.add(
+                    {
+                      'name': objName,
+                      'imageUrl': imageUrl,
+                      'categoryId': categoryId,
+                    },
+                  );
                 }
               }
             },
