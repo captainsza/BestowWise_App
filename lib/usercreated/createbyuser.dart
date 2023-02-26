@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../stream/RatingStream.dart';
+import '../stream/through_db.dart';
 
 // ...
 class UserAdd extends StatefulWidget {
@@ -173,7 +173,24 @@ class _UserAddState extends State<UserAdd> {
                                   await storageReference.getDownloadURL();
                             }
                           },
-                          child: const Text('Select Image'),
+                          child: const Icon(Icons.add_photo_alternate_outlined),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            final pickedFile = await ImagePicker().pickImage(
+                              source: ImageSource.camera,
+                            );
+                            if (pickedFile != null) {
+                              final file = File(pickedFile.path);
+                              final storageReference = FirebaseStorage.instance
+                                  .ref()
+                                  .child('images/$objName');
+                              await storageReference.putFile(file);
+                              imageUrl =
+                                  await storageReference.getDownloadURL();
+                            }
+                          },
+                          child: const Icon(Icons.add_a_photo_outlined),
                         ),
                       ],
                     ),

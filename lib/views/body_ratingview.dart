@@ -1,10 +1,8 @@
-import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import '../stream/RatingStream.dart';
-import '../utilities/starsRating.dart';
+import '../stream/through_db.dart';
+import '../utilities/stars_rating.dart';
 
 class CategoryBody extends StatefulWidget {
   // ignore: use_key_in_widget_constructors
@@ -76,10 +74,7 @@ class _CategoryBodyState extends State<CategoryBody> {
                         context: context,
                         builder: (BuildContext context) {
                           return StreamBuilder<List<Map<String, dynamic>>>(
-                            stream:
-                                category != null && category['index'] != null
-                                    ? getObjectStream(category['index'])
-                                    : null,
+                            stream: getObjectStream(),
                             builder: (BuildContext context,
                                 AsyncSnapshot<List<Map<String, dynamic>>>
                                     snapshot) {

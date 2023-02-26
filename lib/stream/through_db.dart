@@ -10,16 +10,19 @@ Stream<List<Map<String, dynamic>>> getCategoryStream() {
   });
 }
 
-Stream<List<Map<String, dynamic>>> getObjectStream(int categoryIndex) {
+Stream<List<Map<String, dynamic>>> getObjectStream() {
   return FirebaseFirestore.instance
       .collection('categories')
       .doc('objects')
       .collection('items')
-      .where('categoryIndex', isEqualTo: categoryIndex)
       .orderBy('name')
       .snapshots()
       .map((snapshot) {
-    return snapshot.docs.map((doc) => doc.data()).toList();
+    return snapshot.docs
+        .map(
+          (doc) => doc.data(),
+        )
+        .toList();
   });
 }
 
