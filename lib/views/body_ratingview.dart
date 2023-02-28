@@ -13,12 +13,12 @@ class CategoryBody extends StatefulWidget {
 }
 
 class _CategoryBodyState extends State<CategoryBody> {
-  final Map<String, double> _itemRatings = {};
   int? _selectedIndex;
   List<String> imageUrls = [];
   PageController controller = PageController(initialPage: 0);
   double _ratingValue = 0;
   late double _averageRating = 0;
+  final Map<String, double> _itemRatings = {};
 
   String? selectedCategory;
 
@@ -152,21 +152,20 @@ class _CategoryBodyState extends State<CategoryBody> {
                         style: const TextStyle(fontSize: 20),
                       ),
                       StarsRating(
-                          rating: 3,
-                          onRatingChanged: (double rating) {
-                            setState(() {
-                              _ratingValue = rating;
-                            });
-                          }),
+                        rating: _itemRatings[fileName] ?? 0,
+                        onRatingChanged: (double rating) {
+                          setState(() {
+                            _itemRatings[fileName] = rating;
+                          });
+                        },
+                      ),
                       ElevatedButton(
                         onPressed: () async {
                           // Store the rating in Firestore
                           await FirebaseFirestore.instance
                               .collection('categories')
-                              .doc('objects')
-                              .collection('items')
-                              .doc('rating')
-                              .collection('Rating objects')
+                              .doc('Object Rating')
+                              .collection('Rating')
                               .add({
                             'name': fileName,
                             'rating': _ratingValue,

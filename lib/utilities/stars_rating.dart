@@ -12,23 +12,23 @@ class StarsRating extends StatefulWidget {
   }) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _StarsRatingState createState() => _StarsRatingState();
 }
 
 class _StarsRatingState extends State<StarsRating> {
   double _ratingValue = 0;
-  double _averageRating = 0;
 
   @override
   void initState() {
     super.initState();
-    _averageRating = widget.rating;
+    _ratingValue = widget.rating;
   }
 
   @override
   Widget build(BuildContext context) {
     return RatingBar.builder(
-      initialRating: _averageRating,
+      initialRating: _ratingValue,
       minRating: 0,
       direction: Axis.horizontal,
       allowHalfRating: true,

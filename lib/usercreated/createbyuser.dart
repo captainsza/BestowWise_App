@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:allinbest/usercreated/selectedcategories.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -15,8 +14,6 @@ class UserAdd extends StatefulWidget {
 }
 
 class _UserAddState extends State<UserAdd> {
-  final CategorySelection categorySelection = CategorySelection();
-
   String? index;
   List<String> categoryNames = [];
   List<String> objNames = []; // create instance here
@@ -160,7 +157,7 @@ class _UserAddState extends State<UserAdd> {
                             value: categoryName, child: Text(categoryName)))
                         .toList(),
                     onChanged: (value) {
-                      categorySelection.selectedCategory = value;
+                      selectedCategory = value;
                     },
                   ),
                   actions: [
