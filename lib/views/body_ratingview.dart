@@ -20,6 +20,8 @@ class _CategoryBodyState extends State<CategoryBody> {
   double _ratingValue = 0;
   late double _averageRating = 0;
 
+  String? selectedCategory;
+
   Future<void> getImageUrls() async {
     final storageReference = FirebaseStorage.instance.ref().child('images');
     final result = await storageReference.listAll();
@@ -68,13 +70,14 @@ class _CategoryBodyState extends State<CategoryBody> {
                   return InkWell(
                     onTap: () {
                       setState(() {
-                        _selectedIndex = category['index'];
+                        selectedCategory = category['name'];
                       });
+
                       showModalBottomSheet<void>(
                         context: context,
                         builder: (BuildContext context) {
                           return StreamBuilder<List<Map<String, dynamic>>>(
-                            stream: getObjectStream(),
+                            stream: getObjectsStream(selectedCategory!),
                             builder: (BuildContext context,
                                 AsyncSnapshot<List<Map<String, dynamic>>>
                                     snapshot) {
@@ -87,13 +90,11 @@ class _CategoryBodyState extends State<CategoryBody> {
                                 return const Center(
                                     child: CircularProgressIndicator());
                               }
-                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                              final objects = snapshot.data ?? [];
+                              if (objects.isEmpty) {
                                 return const Center(
                                     child: Text('No objects available'));
                               }
-
-                              final objects = snapshot.data!;
-
                               return SizedBox(
                                 height: 300.0,
                                 child: ListView.builder(
@@ -151,7 +152,7 @@ class _CategoryBodyState extends State<CategoryBody> {
                         style: const TextStyle(fontSize: 20),
                       ),
                       StarsRating(
-                          rating: 3.5,
+                          rating: 3,
                           onRatingChanged: (double rating) {
                             setState(() {
                               _ratingValue = rating;

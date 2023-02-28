@@ -1,0 +1,3 @@
+class CategorySelection {
+  String? selectedCategory;
+}

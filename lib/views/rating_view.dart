@@ -1,6 +1,5 @@
 import 'package:allinbest/services/auth/auth_service.dart';
 import 'package:allinbest/usercreated/createbyuser.dart';
-import 'package:allinbest/utilities/deco.dart';
 import 'package:allinbest/views/body_ratingview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

@@ -96,6 +96,16 @@ class _LoginViewState extends State<LoginView> {
                     final user = AuthService.firebase().currentUser;
                     if (user?.isEmailVerified ?? false) {
                       // ignore: use_build_context_synchronously
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          backgroundColor: Colors.deepPurple,
+                          content: Text(
+                            'Welcome! to All IN Best',
+                          ),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      // ignore: use_build_context_synchronously
                       Navigator.of(context).pushNamedAndRemoveUntil(
                         ratingRoute,
                         (route) => false,
