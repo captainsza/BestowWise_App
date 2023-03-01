@@ -15,6 +15,7 @@ class RatingView extends StatefulWidget {
 
 class _RatingViewState extends State<RatingView> {
   get index => null;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

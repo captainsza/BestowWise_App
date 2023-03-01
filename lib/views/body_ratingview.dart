@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -5,7 +7,6 @@ import '../stream/through_db.dart';
 import '../utilities/stars_rating.dart';
 
 class CategoryBody extends StatefulWidget {
-  // ignore: use_key_in_widget_constructors
   const CategoryBody({Key? key});
 
   @override
@@ -16,7 +17,7 @@ class _CategoryBodyState extends State<CategoryBody> {
   int? _selectedIndex;
   List<String> imageUrls = [];
   PageController controller = PageController(initialPage: 0);
-  double _ratingValue = 0;
+  late double _ratingValue = 0;
   late double _averageRating = 0;
   final Map<String, double> _itemRatings = {};
 
@@ -156,6 +157,7 @@ class _CategoryBodyState extends State<CategoryBody> {
                         onRatingChanged: (double rating) {
                           setState(() {
                             _itemRatings[fileName] = rating;
+                            _ratingValue = rating;
                           });
                         },
                       ),
@@ -175,9 +177,11 @@ class _CategoryBodyState extends State<CategoryBody> {
                           _itemRatings[fileName] = _ratingValue;
 
                           // Get the average rating and display it
-                          final averageRating = _itemRatings[fileName];
+                          final averageRating =
+                              _itemRatings.values.reduce((a, b) => a + b) /
+                                  _itemRatings.length;
                           setState(() {
-                            _averageRating = averageRating!;
+                            _averageRating = averageRating;
                           });
                         },
                         child: const Text('Submit'),

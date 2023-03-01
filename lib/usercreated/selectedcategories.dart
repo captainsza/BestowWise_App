@@ -1,3 +1,0 @@
-class CategorySelection {
-  String? selectedCategory;
-}

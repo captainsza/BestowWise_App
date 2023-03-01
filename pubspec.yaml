@@ -47,6 +47,7 @@ dependencies:
   firebase_storage: ^11.0.13
   photo_view: ^0.14.0
   flutter_rating_bar: ^4.0.1
+  geolocator: ^7.6.2
 
 dev_dependencies:
   flutter_test:
