@@ -22,7 +22,7 @@ void main() {
       routes: {
         loginRoute: (context) => const LoginView(),
         registerRoute: (context) => const RegisterView(),
-        ratingRoute: (context) => const RatingView(),
+        ratingRoute: (context) => const RatingView(isDarkMode: false),
         verifyEmailRoute: (context) => const VerifyEmailView(),
       },
     ),
@@ -42,7 +42,9 @@ class HomePage extends StatelessWidget {
             final user = AuthService.firebase().currentUser;
             if (user != null) {
               if (user.isEmailVerified) {
-                return const RatingView();
+                return const RatingView(
+                  isDarkMode: false,
+                );
               } else {
                 return const VerifyEmailView();
               }

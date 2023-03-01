@@ -98,6 +98,7 @@ class _UserAddState extends State<UserAdd> {
               // Add category name to list of existing names
               categoryNames.add(categoryName);
               // Get user input for the category subjects
+
               // ignore: use_build_context_synchronously
               await showDialog<void>(
                 context: context,
@@ -244,7 +245,6 @@ class _UserAddState extends State<UserAdd> {
                                         'category': selectedCategory,
                                         'image': imageUrl,
                                       };
-
                                       // Get a reference to the selected category collection
                                       final categoryCollection =
                                           FirebaseFirestore.instance
@@ -255,6 +255,7 @@ class _UserAddState extends State<UserAdd> {
                                       // Add the obj document to the selected category collection
                                       await categoryCollection.add(obj);
 
+                                      // ignore: use_build_context_synchronously
                                       Navigator.of(context).pop();
                                     },
                                     child: const Text('Add'),
