@@ -101,4 +101,14 @@ class FirebaseAuthProvider implements AuthProvider {
       throw UserNOtFoundAuthException();
     }
   }
+
+  Future<String?> getCurrentUserEmail() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return null;
+    } else {
+      await user.reload();
+      return user.email;
+    }
+  }
 }

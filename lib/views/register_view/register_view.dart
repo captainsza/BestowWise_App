@@ -192,6 +192,7 @@ class _RegisterViewState extends State<RegisterView> {
                         }
 
                         // navigate to the email verification screen
+                        // ignore: use_build_context_synchronously
                         Navigator.of(context).pushNamed(verifyEmailRoute);
                       } on WeakPasswordAuthException {
                         await showErrorDialog(

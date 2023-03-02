@@ -5,8 +5,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../constants/routes.dart';
 import '../enum/menu_action.dart';
+import '../services/auth/currentuserprofile.dart';
 
 class RatingView extends StatefulWidget {
+  // ignore: use_key_in_widget_constructors
   const RatingView({Key? key, required bool isDarkMode});
 
   @override
@@ -14,20 +16,33 @@ class RatingView extends StatefulWidget {
 }
 
 class _RatingViewState extends State<RatingView> {
+  UserData? userData;
+
   bool isDarkMode = false;
   late String appBarImageAssetPath;
 
   @override
   void initState() {
     super.initState();
-    appBarImageAssetPath =
-        'assets/Images/back.png'; // default to light mode image
+    appBarImageAssetPath = 'assets/Images/back.png';
+    _loadUserData(); // default to light mode image
+  }
+
+  Future<void> _loadUserData() async {
+    final currentUser = AuthService.firebase().currentUser;
+
+    if (currentUser != null) {
+      userData = await UserData.fetchUser(currentUser.email);
+      setState(() {});
+    } else {
+      userData = null;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     if (isDarkMode) {
-      appBarImageAssetPath = 'assets/Images/darkapp.png';
+      appBarImageAssetPath = 'assets/Images/darkbar.jpg';
     } else {
       appBarImageAssetPath = 'assets/Images/back.png';
     }
@@ -66,6 +81,7 @@ class _RatingViewState extends State<RatingView> {
                     final shouldLogout = await showLogOutDialog(context);
                     if (shouldLogout) {
                       await AuthService.firebase().logout();
+                      // ignore: use_build_context_synchronously
                       Navigator.of(context).pushNamedAndRemoveUntil(
                         loginRoute,
                         (_) => false,
@@ -99,6 +115,42 @@ class _RatingViewState extends State<RatingView> {
               },
             ),
           ],
+        ),
+        drawer: Drawer(
+          child: ListView(
+            children: [
+              UserAccountsDrawerHeader(
+                accountName:
+                    userData?.name != null ? Text(userData!.name) : null,
+                accountEmail:
+                    userData?.email != null ? Text(userData!.email) : null,
+                currentAccountPicture: userData?.image != null
+                    ? CircleAvatar(
+                        backgroundImage: NetworkImage(userData!.image!),
+                      )
+                    : null,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/Images/OREKI.jfif'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                otherAccountsPictures: [
+                  userData?.city != null
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: CircleAvatar(
+                            child: Text(
+                              userData!.city[0].toUpperCase(),
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                          ),
+                        )
+                      : const SizedBox(),
+                ],
+              ),
+            ],
+          ),
         ),
         body: const CategoryBody(),
         floatingActionButton: const UserAdd(),
