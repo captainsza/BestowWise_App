@@ -18,7 +18,7 @@ class _CategoryBodyState extends State<CategoryBody> {
   List<String> imageUrls = [];
   PageController controller = PageController(initialPage: 0);
   late double _ratingValue = 0;
-  late double _averageRating = 0;
+  final Map<String, double> _averageRating = {};
   final Map<String, double> _itemRatings = {};
 
   String? selectedCategory;
@@ -31,6 +31,19 @@ class _CategoryBodyState extends State<CategoryBody> {
     setState(() {
       imageUrls = urls;
     });
+
+    // Retrieve existing ratings from Firestore and add them to the _itemRatings map
+    final snapshot = await FirebaseFirestore.instance
+        .collection('categories')
+        .doc('Object Rating')
+        .collection('Rating')
+        .get();
+    final ratings = snapshot.docs.map((doc) => doc.data()).toList();
+    for (final rating in ratings) {
+      final fileName = rating['name'];
+      final ratingValue = rating['rating'];
+      _itemRatings[fileName] = ratingValue;
+    }
   }
 
   @override
@@ -181,13 +194,15 @@ class _CategoryBodyState extends State<CategoryBody> {
                               _itemRatings.values.reduce((a, b) => a + b) /
                                   _itemRatings.length;
                           setState(() {
-                            _averageRating = averageRating;
+                            _averageRating[fileName] = averageRating;
                           });
                         },
                         child: const Text('Submit'),
                       ),
-                      if (_averageRating != null)
-                        Text('Average rating: $_averageRating'),
+                      if (_averageRating[fileName] != null)
+                        Text('Average rating: ${_averageRating[fileName]}'),
+                      if (_itemRatings[fileName] != null)
+                        Text('Your rating: ${_itemRatings[fileName]}'),
                     ],
                   );
                 }).toList(),

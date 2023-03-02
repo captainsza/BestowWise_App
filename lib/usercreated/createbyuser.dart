@@ -127,6 +127,7 @@ class _UserAddState extends State<UserAdd> {
                 "index": index,
                 "name": categoryName,
                 "subjects": categorySubjects,
+                'publishDateTime': DateTime.now(),
               });
             }
           },
@@ -244,6 +245,7 @@ class _UserAddState extends State<UserAdd> {
                                         'name': objName,
                                         'category': selectedCategory,
                                         'image': imageUrl,
+                                        'publishDateTime': DateTime.now(),
                                       };
                                       // Get a reference to the selected category collection
                                       final categoryCollection =
