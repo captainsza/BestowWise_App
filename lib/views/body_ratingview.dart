@@ -1,6 +1,7 @@
 // ignore_for_file: use_key_in_widget_constructors
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import '../stream/through_db.dart';
@@ -37,7 +38,9 @@ class _CategoryBodyState extends State<CategoryBody> {
         .collection('categories')
         .doc('Object Rating')
         .collection('Rating')
+        .where('userId', isEqualTo: userId)
         .get();
+
     final ratings = snapshot.docs.map((doc) => doc.data()).toList();
     for (final rating in ratings) {
       final fileName = rating['name'];
@@ -46,9 +49,12 @@ class _CategoryBodyState extends State<CategoryBody> {
     }
   }
 
+  String? userId;
+
   @override
   void initState() {
     super.initState();
+    userId = FirebaseAuth.instance.currentUser?.uid;
     getImageUrls();
   }
 
@@ -118,7 +124,17 @@ class _CategoryBodyState extends State<CategoryBody> {
                                     return Card(
                                       child: InkWell(
                                         onTap: () {
-                                          // Do something when an object is tapped
+                                          final objName = obj['name'] ?? '';
+                                          final index = imageUrls.indexWhere(
+                                              (url) => url.contains(objName));
+                                          if (index != -1) {
+                                            controller.animateToPage(
+                                              index,
+                                              duration: const Duration(
+                                                  milliseconds: 500),
+                                              curve: Curves.easeOut,
+                                            );
+                                          }
                                         },
                                         child: ListTile(
                                           title: Text(obj['name'] ?? ''),
@@ -184,6 +200,8 @@ class _CategoryBodyState extends State<CategoryBody> {
                               .add({
                             'name': fileName,
                             'rating': _ratingValue,
+                            'userId': userId,
+                            'PublishDateTime': DateTime.now(),
                           });
 
                           // Add the rating to the _itemRatings map
