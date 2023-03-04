@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../services/auth/currentuserprofile.dart';
 
 // ...
 class UserAdd extends StatefulWidget {
@@ -194,12 +197,17 @@ class _UserAddState extends State<UserAdd> {
                                             await ImagePicker().pickImage(
                                           source: ImageSource.gallery,
                                         );
+                                        final user = await UserData.fetchUser(
+                                            FirebaseAuth
+                                                .instance.currentUser!.email!);
+                                        final userName = user!.name;
                                         if (pickedFile != null) {
                                           final file = File(pickedFile.path);
-                                          final storageReference =
-                                              FirebaseStorage.instance
-                                                  .ref()
-                                                  .child('images/$objName');
+                                          final storageReference = FirebaseStorage
+                                              .instance
+                                              .ref()
+                                              .child(
+                                                  'images/$userName/$objName'); // append user's name to image path
                                           await storageReference.putFile(file);
                                           imageUrl = await storageReference
                                               .getDownloadURL();
@@ -214,12 +222,17 @@ class _UserAddState extends State<UserAdd> {
                                             await ImagePicker().pickImage(
                                           source: ImageSource.camera,
                                         );
+                                        final user = await UserData.fetchUser(
+                                            FirebaseAuth
+                                                .instance.currentUser!.email!);
+                                        final userName = user!.name;
                                         if (pickedFile != null) {
                                           final file = File(pickedFile.path);
-                                          final storageReference =
-                                              FirebaseStorage.instance
-                                                  .ref()
-                                                  .child('images/$objName');
+                                          final storageReference = FirebaseStorage
+                                              .instance
+                                              .ref()
+                                              .child(
+                                                  'images/$userName/$objName'); // append user's name to image path
                                           await storageReference.putFile(file);
                                           imageUrl = await storageReference
                                               .getDownloadURL();
@@ -241,11 +254,16 @@ class _UserAddState extends State<UserAdd> {
                                   ),
                                   TextButton(
                                     onPressed: () async {
+                                      final user = await UserData.fetchUser(
+                                          FirebaseAuth
+                                              .instance.currentUser!.email!);
                                       final obj = {
                                         'name': objName,
                                         'category': selectedCategory,
                                         'image': imageUrl,
                                         'publishDateTime': DateTime.now(),
+                                        'addedBy': user
+                                            ?.name // include user's email as a field in the object
                                       };
                                       // Get a reference to the selected category collection
                                       final categoryCollection =

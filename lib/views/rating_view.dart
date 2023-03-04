@@ -1,11 +1,11 @@
 import 'package:allinbest/services/auth/auth_service.dart';
 import 'package:allinbest/usercreated/createbyuser.dart';
 import 'package:allinbest/views/body_ratingview.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import '../constants/routes.dart';
-import '../enum/menu_action.dart';
 import '../services/auth/currentuserprofile.dart';
+import '../stream/logoutdialog.dart';
 
 class RatingView extends StatefulWidget {
   // ignore: use_key_in_widget_constructors
@@ -25,7 +25,8 @@ class _RatingViewState extends State<RatingView> {
   void initState() {
     super.initState();
     appBarImageAssetPath = 'assets/Images/back.png';
-    _loadUserData(); // default to light mode image
+    _loadUserData();
+    // default to light mode image
   }
 
   Future<void> _loadUserData() async {
@@ -46,7 +47,6 @@ class _RatingViewState extends State<RatingView> {
     } else {
       appBarImageAssetPath = 'assets/Images/back.png';
     }
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'All in Best',
@@ -63,56 +63,23 @@ class _RatingViewState extends State<RatingView> {
           ),
           backgroundColor: Colors.transparent,
           actions: [
-            IconButton(
-              icon: isDarkMode
-                  ? const Icon(Icons.wb_sunny)
-                  : const Icon(Icons.nightlight_round),
-              onPressed: () {
+            InkWell(
+              onTap: () {
                 setState(() {
                   isDarkMode = !isDarkMode;
                 });
               },
-            ),
-            PopupMenuButton<MenuAction>(
-              icon: const Icon(CupertinoIcons.profile_circled),
-              onSelected: (value) async {
-                switch (value) {
-                  case MenuAction.logout:
-                    final shouldLogout = await showLogOutDialog(context);
-                    if (shouldLogout) {
-                      await AuthService.firebase().logout();
-                      // ignore: use_build_context_synchronously
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        loginRoute,
-                        (_) => false,
-                      );
-                    }
-                }
-              },
-              itemBuilder: (context) {
-                return [
-                  PopupMenuItem<MenuAction>(
-                    value: MenuAction.logout,
-                    child: Row(
-                      children: const [
-                        Icon(
-                          Icons.logout,
-                          color: Colors.deepPurple, // Change the icon color
-                        ),
-                        SizedBox(width: 3), // Add some spacing
-                        Text(
-                          'Log Out',
-                          style: TextStyle(
-                            fontSize: 10, // Change the font size
-                            fontWeight: FontWeight.bold, // Add some boldness
-                            color: Colors.black, // Change the text color
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ];
-              },
+              child: Container(
+                margin: const EdgeInsets.only(right: 40.0),
+                child: Lottie.asset(
+                  isDarkMode
+                      ? 'assets/LOTTIES/lightmode.json' // Replace with your dark mode animation
+                      : 'assets/LOTTIES/darkmode.json', // Replace with your light mode animation
+                  width: 24,
+                  height: 24,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ],
         ),
@@ -129,26 +96,30 @@ class _RatingViewState extends State<RatingView> {
                         backgroundImage: NetworkImage(userData!.image!),
                       )
                     : null,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage('assets/Images/OREKI.jfif'),
+                    image: AssetImage(appBarImageAssetPath),
                     fit: BoxFit.cover,
                   ),
                 ),
-                otherAccountsPictures: [
-                  userData?.city != null
-                      ? Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: CircleAvatar(
-                            child: Text(
-                              userData!.city[0].toUpperCase(),
-                              style: const TextStyle(fontSize: 20),
-                            ),
-                          ),
-                        )
-                      : const SizedBox(),
-                ],
               ),
+              // Add other items in the drawer here
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.deepPurple),
+                title: const Text('Log Out'),
+                onTap: () async {
+                  final shouldLogout = await showLogOutDialog(context);
+                  if (shouldLogout) {
+                    await AuthService.firebase().logout();
+                    // ignore: use_build_context_synchronously
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      loginRoute,
+                      (_) => false,
+                    );
+                  }
+                },
+              ),
+              Lottie.asset('assets/LOTTIES/rateme.json')
             ],
           ),
         ),
@@ -157,30 +128,4 @@ class _RatingViewState extends State<RatingView> {
       ),
     );
   }
-}
-
-Future<bool> showLogOutDialog(BuildContext context) {
-  return showDialog<bool>(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text('sign out'),
-        content: const Text('User you want to Sign ou'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            child: const Icon(Icons.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: const Icon(Icons.logout),
-          ),
-        ],
-      );
-    },
-  ).then((value) => value ?? false);
 }

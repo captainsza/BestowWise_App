@@ -48,6 +48,11 @@ dependencies:
   photo_view: ^0.14.0
   flutter_rating_bar: ^4.0.1
   geolocator: ^7.6.2
+  lottie: ^2.2.0
+  geocoding: ^2.0.5
+  permission_handler: ^10.2.0
+  geolocator_apple: ^1.2.2
+  geolocator_android: ^2.1.0
   
 
 dev_dependencies:
@@ -76,6 +81,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/Images/
+    - assets/LOTTIES/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

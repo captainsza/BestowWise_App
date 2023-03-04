@@ -5,12 +5,14 @@ class UserData {
   final String name;
   final String city;
   final String? image;
+  final String addedBy;
 
   UserData({
     required this.email,
     required this.name,
     required this.city,
     this.image,
+    required this.addedBy,
   });
 
   factory UserData.fromFirestore(DocumentSnapshot doc) {
@@ -21,6 +23,7 @@ class UserData {
       name: data['name'] ?? '',
       city: data['city'] ?? '',
       image: data['image'] as String?,
+      addedBy: data['added by'] ?? '',
     );
   }
 

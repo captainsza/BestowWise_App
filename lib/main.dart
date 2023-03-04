@@ -1,11 +1,13 @@
 import 'package:allinbest/constants/routes.dart';
 import 'package:allinbest/services/auth/auth_service.dart';
+import 'package:allinbest/utilities/locationpermission.dart';
 import 'package:allinbest/views/login_view.dart';
 import 'package:allinbest/views/rating_view.dart';
 import 'package:allinbest/views/register_view/register_view.dart';
 import 'package:allinbest/views/verify_email_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,32 +32,57 @@ void main() async {
   );
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool _isLocationPermissionGranted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    requestLocationPermission();
+  }
+
+  Future<void> requestLocationPermission() async {
+    final status = await Permission.location.request();
+    setState(() {
+      _isLocationPermissionGranted = status.isGranted;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: AuthService.firebase().initialize(),
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.done:
-            final user = AuthService.firebase().currentUser;
-            if (user != null) {
-              if (user.isEmailVerified) {
-                return const RatingView(
-                  isDarkMode: false,
-                );
+    if (!_isLocationPermissionGranted) {
+      return const LocationPermissionScreen();
+    } else {
+      return FutureBuilder(
+        future: AuthService.firebase().initialize(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              final user = AuthService.firebase().currentUser;
+              if (user != null) {
+                if (user.isEmailVerified) {
+                  return const RatingView(
+                    isDarkMode: false,
+                  );
+                } else {
+                  return const VerifyEmailView();
+                }
               } else {
-                return const VerifyEmailView();
+                return const LoginView();
               }
-            } else {
-              return const LoginView();
-            }
-          default:
-            return const CircularProgressIndicator();
-        }
-      },
-    );
+            default:
+              return const CircularProgressIndicator();
+          }
+        },
+      );
+    }
   }
 }

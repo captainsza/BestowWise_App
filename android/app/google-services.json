@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "853533774101",
-    "project_id": "allinbest-project",
-    "storage_bucket": "allinbest-project.appspot.com"
+    "project_number": "509653914700",
+    "project_id": "empire-all-in-best",
+    "storage_bucket": "empire-all-in-best.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:853533774101:android:1c21563102974f89ab191c",
+        "mobilesdk_app_id": "1:509653914700:android:dd83fbab4cbfb0922f90e9",
         "android_client_info": {
           "package_name": "com.empire.allinbest"
         }
       },
       "oauth_client": [
         {
-          "client_id": "853533774101-628rebflmcifc0rbe3rau5o8di6rfum2.apps.googleusercontent.com",
+          "client_id": "509653914700-1poodpn6jl2ebeu4kgfkkj8fcdn740ie.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyD0ofc2IkBKtvpbCH7opOGYknXCStenIqQ"
+          "current_key": "AIzaSyD-LxIX4MfA886HpeXQyLBXAr5sDb-4n5I"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "853533774101-628rebflmcifc0rbe3rau5o8di6rfum2.apps.googleusercontent.com",
+              "client_id": "509653914700-1poodpn6jl2ebeu4kgfkkj8fcdn740ie.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
