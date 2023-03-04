@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import '../services/auth/currentuserprofile.dart';
 import '../stream/through_db.dart';
 import '../utilities/stars_rating.dart';
 
@@ -26,12 +25,7 @@ class _CategoryBodyState extends State<CategoryBody> {
   String? selectedCategory;
 
   Future<void> getImageUrls() async {
-    final user =
-        await UserData.fetchUser(FirebaseAuth.instance.currentUser!.email!);
-    final userName = user!.name;
-
-    final storageReference =
-        FirebaseStorage.instance.ref().child('images/$userName/');
+    final storageReference = FirebaseStorage.instance.ref().child('images/');
     final result = await storageReference.listAll();
     final urls =
         await Future.wait(result.items.map((ref) => ref.getDownloadURL()));

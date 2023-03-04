@@ -5,7 +5,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../services/auth/currentuserprofile.dart';
 
 // ...
@@ -96,11 +95,9 @@ class _UserAddState extends State<UserAdd> {
                 );
               },
             );
-            // Get user input for the category subjects
+
             if (validateCategoryName(categoryName)) {
-              // Add category name to list of existing names
               categoryNames.add(categoryName);
-              // Get user input for the category subjects
 
               // ignore: use_build_context_synchronously
               await showDialog<void>(
@@ -180,7 +177,8 @@ class _UserAddState extends State<UserAdd> {
                             context: context,
                             builder: (context) {
                               return AlertDialog(
-                                title: const Text('Enter Object Name'),
+                                title: const Text(
+                                    'Enter Caption and Try to giving caption without any spaces!'),
                                 content: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -197,17 +195,14 @@ class _UserAddState extends State<UserAdd> {
                                             await ImagePicker().pickImage(
                                           source: ImageSource.gallery,
                                         );
-                                        final user = await UserData.fetchUser(
-                                            FirebaseAuth
-                                                .instance.currentUser!.email!);
-                                        final userName = user!.name;
+
                                         if (pickedFile != null) {
                                           final file = File(pickedFile.path);
                                           final storageReference = FirebaseStorage
                                               .instance
                                               .ref()
                                               .child(
-                                                  'images/$userName/$objName'); // append user's name to image path
+                                                  'images/$objName'); // append user's name to image path
                                           await storageReference.putFile(file);
                                           imageUrl = await storageReference
                                               .getDownloadURL();
@@ -222,17 +217,14 @@ class _UserAddState extends State<UserAdd> {
                                             await ImagePicker().pickImage(
                                           source: ImageSource.camera,
                                         );
-                                        final user = await UserData.fetchUser(
-                                            FirebaseAuth
-                                                .instance.currentUser!.email!);
-                                        final userName = user!.name;
+
                                         if (pickedFile != null) {
                                           final file = File(pickedFile.path);
                                           final storageReference = FirebaseStorage
                                               .instance
                                               .ref()
                                               .child(
-                                                  'images/$userName/$objName'); // append user's name to image path
+                                                  'images/$objName'); // append user's name to image path
                                           await storageReference.putFile(file);
                                           imageUrl = await storageReference
                                               .getDownloadURL();
