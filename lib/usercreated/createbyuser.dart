@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/auth/currentuserprofile.dart';
+import 'locationusing.dart';
 
 // ...
 class UserAdd extends StatefulWidget {
@@ -69,8 +70,10 @@ class _UserAddState extends State<UserAdd> {
 
             String categoryName = '';
             List<String> categorySubjects = [];
+            String? location = await getCurrentLocation();
 
             // Get user input for the category name
+            // ignore: use_build_context_synchronously
             await showDialog<void>(
               context: context,
               builder: (context) {
@@ -123,11 +126,16 @@ class _UserAddState extends State<UserAdd> {
                 },
               );
               // Add the new category to the Firestore database
+              final user = await UserData.fetchUser(
+                  FirebaseAuth.instance.currentUser!.email!);
               await databaseReference.doc(categoryId).set({
                 "index": index,
                 "name": categoryName,
                 "subjects": categorySubjects,
                 'publishDateTime': DateTime.now(),
+                'addedBy': user?.name,
+                "location": location,
+                'useremail': user?.email,
               });
             }
           },
@@ -145,6 +153,7 @@ class _UserAddState extends State<UserAdd> {
             String objName = '';
             String? imageUrl;
             String? selectedCategory;
+            String? location = await getCurrentLocation();
 
             // ignore: use_build_context_synchronously
             await showDialog<void>(
@@ -254,10 +263,11 @@ class _UserAddState extends State<UserAdd> {
                                         'category': selectedCategory,
                                         'image': imageUrl,
                                         'publishDateTime': DateTime.now(),
-                                        'addedBy': user
-                                            ?.name // include user's email as a field in the object
+                                        'addedBy': user?.name,
+                                        "location": location,
+                                        'useremail': user?.email,
                                       };
-                                      // Get a reference to the selected category collection
+
                                       final categoryCollection =
                                           FirebaseFirestore.instance
                                               .collection('categories')

@@ -41,153 +41,155 @@ class _LoginViewState extends State<LoginView> {
         centerTitle: true,
         title: const Text('Login'),
       ),
-      body: Column(
-        children: [
-          Image.asset(
-            'assets/Images/undraw_Mobile_login_re_9ntv.png',
-            height: 200,
-            scale: 2.5,
-          ),
-          Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextField(
-                  controller: _email,
-                  enableSuggestions: false,
-                  autocorrect: false,
-                  decoration: textInputDecoration.copyWith(
-                    // hintText: 'Enter your Email',
-                    labelText: 'Email',
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Image.asset(
+              'assets/Images/undraw_Mobile_login_re_9ntv.png',
+              height: 200,
+              scale: 2.5,
+            ),
+            Column(
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  child: TextField(
+                    controller: _email,
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    decoration: textInputDecoration.copyWith(
+                      // hintText: 'Enter your Email',
+                      labelText: 'Email',
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Container(
-                width: MediaQuery.of(context).size.width,
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextField(
-                  controller: _password,
-                  obscureText: true,
-                  enableSuggestions: false,
-                  autocorrect: false,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: textInputDecoration.copyWith(
-                    // hintText: 'Enter password',
-                    labelText: 'Password',
+                const SizedBox(
+                  height: 20,
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  child: TextField(
+                    controller: _password,
+                    obscureText: true,
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: textInputDecoration.copyWith(
+                      // hintText: 'Enter password',
+                      labelText: 'Password',
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              InkWell(
-                onTap: () async {
-                  final email = _email.text;
-                  final password = _password.text;
-                  try {
-                    await AuthService.firebase().login(
-                      email: email,
-                      password: password,
-                    );
-                    final user = AuthService.firebase().currentUser;
-                    if (user?.isEmailVerified ?? false) {
-                      // ignore: use_build_context_synchronously
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          backgroundColor: Colors.deepPurple,
-                          content: Text(
-                            'Welcome! to All IN Best',
+                const SizedBox(
+                  height: 30,
+                ),
+                InkWell(
+                  onTap: () async {
+                    final email = _email.text;
+                    final password = _password.text;
+                    try {
+                      await AuthService.firebase().login(
+                        email: email,
+                        password: password,
+                      );
+                      final user = AuthService.firebase().currentUser;
+                      if (user?.isEmailVerified ?? false) {
+                        // ignore: use_build_context_synchronously
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: Colors.deepPurple,
+                            content: Text(
+                              'Welcome! to All IN Best',
+                            ),
+                            duration: Duration(seconds: 2),
                           ),
-                          duration: Duration(seconds: 2),
-                        ),
+                        );
+                        // ignore: use_build_context_synchronously
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          ratingRoute,
+                          (route) => false,
+                        );
+                      } else {
+                        // ignore: use_build_context_synchronously
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          verifyEmailRoute,
+                          (route) => true,
+                        );
+                      }
+                    } on UserNOtFoundAuthException {
+                      await showErrorDialog(
+                        context,
+                        'User Not Found',
                       );
-                      // ignore: use_build_context_synchronously
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        ratingRoute,
-                        (route) => false,
+                    } on WrongPasswordAuthException {
+                      await showErrorDialog(
+                        context,
+                        'Given Passward is wrong',
                       );
-                    } else {
-                      // ignore: use_build_context_synchronously
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        verifyEmailRoute,
-                        (route) => true,
+                    } on GenericAuthException {
+                      await showErrorDialog(
+                        context,
+                        'Authentication error',
                       );
                     }
-                  } on UserNOtFoundAuthException {
-                    await showErrorDialog(
-                      context,
-                      'User Not Found',
-                    );
-                  } on WrongPasswordAuthException {
-                    await showErrorDialog(
-                      context,
-                      'Given Passward is wrong',
-                    );
-                  } on GenericAuthException {
-                    await showErrorDialog(
-                      context,
-                      'Authentication error',
-                    );
-                  }
-                },
-                child: Container(
-                  decoration: const BoxDecoration(
-                      color: Colors.deepPurple,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10),
-                      )),
-                  width: MediaQuery.of(context).size.width - 150,
-                  height: 50,
-                  // padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  // color: Colors.deepPurple,
+                  },
+                  child: Container(
+                    decoration: const BoxDecoration(
+                        color: Colors.deepPurple,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        )),
+                    width: MediaQuery.of(context).size.width - 150,
+                    height: 50,
+                    // padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    // color: Colors.deepPurple,
 
-                  child: const Center(
-                    child: Text(
-                      'login',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: const Text(
-                      'Dont have an account?',
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        registerRoute,
-                        (route) => false,
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: const Text(
-                        ' Signup.',
+                    child: const Center(
+                      child: Text(
+                        'login',
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
-        ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: const Text(
+                        'Dont have an account?',
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          registerRoute,
+                          (route) => false,
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: const Text(
+                          ' Signup.',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
