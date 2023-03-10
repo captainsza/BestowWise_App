@@ -132,8 +132,11 @@ class _CategoryBodyState extends State<CategoryBody> {
                                       child: InkWell(
                                         onTap: () {
                                           final objName = obj['name'] ?? '';
+                                          final encodedName =
+                                              Uri.encodeComponent(objName);
                                           final index = imageUrls.indexWhere(
-                                              (url) => url.contains(objName));
+                                            (url) => url.contains(encodedName),
+                                          );
                                           if (index != -1) {
                                             controller.animateToPage(
                                               index,
@@ -164,13 +167,15 @@ class _CategoryBodyState extends State<CategoryBody> {
                     },
                     child: Card(
                       color: selectedCategory == category['name']
-                          ? Theme.of(context).primaryColorLight
+                          ? Color.fromARGB(255, 176, 99, 231)
                           : Colors.transparent,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           category['name'] ?? '',
-                          style: const TextStyle(fontSize: 16.0),
+                          style: const TextStyle(
+                            fontSize: 16.0,
+                          ),
                         ),
                       ),
                     ),

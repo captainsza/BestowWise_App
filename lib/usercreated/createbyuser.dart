@@ -186,8 +186,7 @@ class _UserAddState extends State<UserAdd> {
                             context: context,
                             builder: (context) {
                               return AlertDialog(
-                                title: const Text(
-                                    'Enter Caption and Try to giving caption without any spaces!'),
+                                title: const Text('Enter your good caption!'),
                                 content: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
