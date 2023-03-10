@@ -16,6 +16,7 @@ void main() async {
 
   runApp(
     MaterialApp(
+      // showPerformanceOverlay: true,
       debugShowCheckedModeBanner: false,
       title: 'All in Best',
       theme: ThemeData(

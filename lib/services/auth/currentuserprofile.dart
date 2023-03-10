@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserData {
   late final String email;
-  final String name;
+  late final String name;
   final String city;
-  final String? image;
+  late final String? image;
   final String addedBy;
 
   UserData({

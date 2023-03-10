@@ -4,14 +4,11 @@ import 'package:geocoding/geocoding.dart';
 Future<String?> getCurrentLocation() async {
   String? location;
 
-  // Check if location services are enabled
   bool isLocationEnabled = await Geolocator.isLocationServiceEnabled();
   if (isLocationEnabled) {
-    // Get the user's current position
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
-    // Get the city and country names from the position
     List<Placemark> placemarks =
         await placemarkFromCoordinates(position.latitude, position.longitude);
 
@@ -20,9 +17,33 @@ Future<String?> getCurrentLocation() async {
       location = "${placemark.locality}, ${placemark.country}";
     }
   } else {
-    // Prompt the user to enable location services
     await Geolocator.openLocationSettings();
   }
 
   return location;
 }
+
+// Future<String?> getSelectedLocation() async {
+//   String? location;
+
+//   // Prompt the user to select a location from the map
+//   LatLng? latLng = await MapsLauncher.launchMap(
+//     zoom: 15,
+//     title: "Select Location",
+//     markerIcon:
+//         BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+//   );
+
+//   if (latLng != null) {
+//     // Get the city and country names from the selected location
+//     List<Placemark> placemarks =
+//         await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
+
+//     if (placemarks.isNotEmpty) {
+//       Placemark placemark = placemarks[0];
+//       location = "${placemark.locality}, ${placemark.country}";
+//     }
+//   }
+
+//   return location;
+// }

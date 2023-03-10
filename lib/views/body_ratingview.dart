@@ -1,5 +1,3 @@
-// ignore_for_file: use_key_in_widget_constructors
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -8,6 +6,7 @@ import '../stream/through_db.dart';
 import '../utilities/stars_rating.dart';
 
 class CategoryBody extends StatefulWidget {
+  // ignore: use_key_in_widget_constructors
   const CategoryBody({Key? key});
 
   @override
@@ -15,7 +14,7 @@ class CategoryBody extends StatefulWidget {
 }
 
 class _CategoryBodyState extends State<CategoryBody> {
-  int? _selectedIndex;
+  late Stream<List<String>> _imageUrlsStream;
   List<String> imageUrls = [];
   PageController controller = PageController(initialPage: 0);
   late double _ratingValue = 0;
@@ -56,6 +55,14 @@ class _CategoryBodyState extends State<CategoryBody> {
     super.initState();
     userId = FirebaseAuth.instance.currentUser?.uid;
     getImageUrls();
+    _imageUrlsStream = FirebaseStorage.instance
+        .ref()
+        .child('images/')
+        .listAll()
+        .asStream()
+        .asyncMap((result) =>
+            Future.wait(result.items.map((ref) => ref.getDownloadURL())))
+        .asBroadcastStream();
   }
 
   @override
@@ -137,7 +144,12 @@ class _CategoryBodyState extends State<CategoryBody> {
                                           }
                                         },
                                         child: ListTile(
-                                          title: Text(obj['name'] ?? ''),
+                                          title: Text(
+                                            obj['name'] ?? '',
+                                            style: const TextStyle(
+                                              color: Colors.deepPurpleAccent,
+                                            ),
+                                          ),
                                           // subtitle: Text(obj['subjects'].join(', ')),
                                         ),
                                       ),
@@ -151,9 +163,9 @@ class _CategoryBodyState extends State<CategoryBody> {
                       );
                     },
                     child: Card(
-                      color: _selectedIndex == category['index']
-                          ? Colors.deepPurpleAccent
-                          : Colors.white,
+                      color: selectedCategory == category['name']
+                          ? Theme.of(context).primaryColorLight
+                          : Colors.transparent,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
@@ -167,63 +179,91 @@ class _CategoryBodyState extends State<CategoryBody> {
               ),
             ),
             Expanded(
-              child: PageView(
-                controller: controller,
-                scrollDirection: Axis.vertical,
-                children: imageUrls.map((url) {
-                  final uri = Uri.parse(url);
-                  final fileName = uri.pathSegments.last;
+              child: StreamBuilder<List<String>>(
+                stream: _imageUrlsStream,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final imageUrls = snapshot.data!;
+                  return PageView(
+                    controller: controller,
+                    scrollDirection: Axis.vertical,
+                    children: imageUrls.map(
+                      (url) {
+                        final uri = Uri.parse(url);
+                        final fileName = uri.pathSegments.last;
 
-                  return Column(
-                    children: [
-                      Expanded(child: Image.network(url)),
-                      Text(
-                        fileName,
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                      StarsRating(
-                        rating: _itemRatings[fileName] ?? 0,
-                        onRatingChanged: (double rating) {
-                          setState(() {
-                            _itemRatings[fileName] = rating;
-                            _ratingValue = rating;
-                          });
-                        },
-                      ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          // Store the rating in Firestore
-                          await FirebaseFirestore.instance
-                              .collection('categories')
-                              .doc('Object Rating')
-                              .collection('Rating')
-                              .add({
-                            'name': fileName,
-                            'rating': _ratingValue,
-                            'userId': userId,
-                            'PublishDateTime': DateTime.now(),
-                          });
+                        return Stack(
+                          children: [
+                            Positioned.fill(
+                              child: Image.network(url),
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              child: Column(
+                                children: [
+                                  Text(
+                                    fileName,
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
+                                  StarsRating(
+                                    rating: _itemRatings[fileName] ?? 0,
+                                    onRatingChanged: (double rating) {
+                                      setState(() {
+                                        _itemRatings[fileName] = rating;
+                                        _ratingValue = rating;
+                                      });
+                                    },
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      // Store the rating in Firestore
+                                      await FirebaseFirestore.instance
+                                          .collection('categories')
+                                          .doc('Object Rating')
+                                          .collection('Rating')
+                                          .add({
+                                        'name': fileName,
+                                        'rating': _ratingValue,
+                                        'userId': userId,
+                                        'PublishDateTime': DateTime.now(),
+                                      });
 
-                          // Add the rating to the _itemRatings map
-                          _itemRatings[fileName] = _ratingValue;
+                                      // Add the rating to the _itemRatings map
+                                      _itemRatings[fileName] = _ratingValue;
 
-                          // Get the average rating and display it
-                          final averageRating =
-                              _itemRatings.values.reduce((a, b) => a + b) /
-                                  _itemRatings.length;
-                          setState(() {
-                            _averageRating[fileName] = averageRating;
-                          });
-                        },
-                        child: const Text('Submit'),
-                      ),
-                      if (_averageRating[fileName] != null)
-                        Text('Average rating: ${_averageRating[fileName]}'),
-                      if (_itemRatings[fileName] != null)
-                        Text('Your rating: ${_itemRatings[fileName]}'),
-                    ],
+                                      // Get the average rating and display it
+                                      final averageRating = _itemRatings.values
+                                              .reduce((a, b) => a + b) /
+                                          _itemRatings.length;
+                                      setState(() {
+                                        _averageRating[fileName] =
+                                            averageRating;
+                                      });
+                                    },
+                                    child: const Text('Submit'),
+                                  ),
+                                  if (_averageRating[fileName] != null)
+                                    Text(
+                                        'Average rating: ${_averageRating[fileName]}'),
+                                  if (_itemRatings[fileName] != null)
+                                    Text(
+                                        'Your rating: ${_itemRatings[fileName]}'),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ).toList(),
                   );
-                }).toList(),
+                },
               ),
             ),
           ],

@@ -17,6 +17,7 @@ class RatingView extends StatefulWidget {
 
 class _RatingViewState extends State<RatingView> {
   UserData? userData;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool isDarkMode = false;
   late String appBarImageAssetPath;
@@ -52,8 +53,17 @@ class _RatingViewState extends State<RatingView> {
       title: 'All in Best',
       theme: isDarkMode ? ThemeData.dark() : ThemeData.light(),
       home: Scaffold(
+        key: _scaffoldKey,
+        extendBodyBehindAppBar: false,
         appBar: AppBar(
           centerTitle: true,
+          leading: IconButton(
+            iconSize: 30,
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              _scaffoldKey.currentState!.openDrawer();
+            },
+          ),
           title: const Text(
             'All In Best',
           ),
@@ -119,6 +129,12 @@ class _RatingViewState extends State<RatingView> {
                   }
                 },
               ),
+              const ExpansionTile(
+                title: Text(
+                  'My List',
+                ),
+              ),
+
               Lottie.asset('assets/LOTTIES/rateme.json')
             ],
           ),

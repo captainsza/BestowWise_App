@@ -53,6 +53,12 @@ dependencies:
   permission_handler: ^10.2.0
   geolocator_apple: ^1.2.2
   geolocator_android: ^2.1.0
+  font_awesome_flutter: ^10.4.0
+  flutter_zoom_drawer: ^3.0.4+1
+  google_maps_flutter: ^2.2.5
+  maps_launcher: ^2.2.0
+  flutter_launcher_icons: ^0.12.0
+
   
 
 dev_dependencies:
