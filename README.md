@@ -1,4 +1,4 @@
-# Bestow 
+# BestowWise 
 
 A new Flutter project.
 This is the rating and giving reviews to things as can think to giving 
