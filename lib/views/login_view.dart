@@ -3,6 +3,7 @@ import 'package:allinbest/services/auth/auth_exceptions.dart';
 import 'package:allinbest/services/auth/auth_service.dart';
 
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 import '../utilities/deco.dart';
 import '../utilities/show_error_dialog.dart';
@@ -44,10 +45,9 @@ class _LoginViewState extends State<LoginView> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Image.asset(
-              'assets/Images/undraw_Mobile_login_re_9ntv.png',
+            Lottie.asset(
+              'assets/LOTTIES/register.json',
               height: 200,
-              scale: 2.5,
             ),
             Column(
               children: [
@@ -101,7 +101,7 @@ class _LoginViewState extends State<LoginView> {
                           const SnackBar(
                             backgroundColor: Colors.deepPurple,
                             content: Text(
-                              'Welcome! to All IN Best',
+                              'Welcome! to BestowWise',
                             ),
                             duration: Duration(seconds: 2),
                           ),

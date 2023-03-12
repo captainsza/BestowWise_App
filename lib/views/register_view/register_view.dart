@@ -147,6 +147,9 @@ class _RegisterViewState extends State<RegisterView> {
                       ),
                     ),
                   ),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   InkWell(
                     onTap: () async {
                       final email = _email.text;

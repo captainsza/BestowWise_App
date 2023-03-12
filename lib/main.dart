@@ -18,7 +18,7 @@ void main() async {
     MaterialApp(
       // showPerformanceOverlay: true,
       debugShowCheckedModeBanner: false,
-      title: 'All in Best',
+      title: 'BestowWise',
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
       ),

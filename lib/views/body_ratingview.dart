@@ -167,7 +167,7 @@ class _CategoryBodyState extends State<CategoryBody> {
                     },
                     child: Card(
                       color: selectedCategory == category['name']
-                          ? Color.fromARGB(255, 176, 99, 231)
+                          ? const Color.fromARGB(255, 176, 99, 231)
                           : Colors.transparent,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),

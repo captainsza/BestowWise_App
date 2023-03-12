@@ -1,6 +1,7 @@
 import 'package:allinbest/services/auth/auth_service.dart';
 import 'package:allinbest/usercreated/createbyuser.dart';
 import 'package:allinbest/views/body_ratingview.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../constants/routes.dart';
@@ -50,7 +51,7 @@ class _RatingViewState extends State<RatingView> {
     }
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'All in Best',
+      title: 'BestowWise',
       theme: isDarkMode ? ThemeData.dark() : ThemeData.light(),
       home: Scaffold(
         key: _scaffoldKey,
@@ -58,14 +59,14 @@ class _RatingViewState extends State<RatingView> {
         appBar: AppBar(
           centerTitle: true,
           leading: IconButton(
-            iconSize: 30,
-            icon: const Icon(Icons.menu),
+            iconSize: 40,
+            icon: const Icon(CupertinoIcons.line_horizontal_3_decrease),
             onPressed: () {
               _scaffoldKey.currentState!.openDrawer();
             },
           ),
           title: const Text(
-            'All In Best',
+            'BestowWise',
           ),
           flexibleSpace: Image(
             image: AssetImage(appBarImageAssetPath),

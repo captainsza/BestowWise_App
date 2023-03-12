@@ -159,142 +159,178 @@ class _UserAddState extends State<UserAdd> {
             await showDialog<void>(
               context: context,
               builder: (context) {
-                return AlertDialog(
-                  title: const Text('Select a Category'),
-                  content: DropdownButton<String>(
-                    value: selectedCategory,
-                    items: categoryNames
-                        .map((categoryName) => DropdownMenuItem(
-                            value: categoryName, child: Text(categoryName)))
-                        .toList(),
-                    onChanged: (value) {
-                      selectedCategory = value;
-                    },
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        if (selectedCategory != null) {
-                          Navigator.of(context).pop();
-                          showDialog<void>(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: const Text('Enter your good caption!'),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    TextField(
-                                      maxLength: 25,
-                                      onChanged: (value) {
-                                        objName = value;
-                                      },
-                                    ),
-                                    const SizedBox(height: 20.0),
-                                    TextButton(
-                                      onPressed: () async {
-                                        final pickedFile =
-                                            await ImagePicker().pickImage(
-                                          source: ImageSource.gallery,
-                                        );
-
-                                        if (pickedFile != null) {
-                                          final file = File(pickedFile.path);
-                                          final storageReference = FirebaseStorage
-                                              .instance
-                                              .ref()
-                                              .child(
-                                                  'images/$objName'); // append user's name to image path
-                                          await storageReference.putFile(file);
-                                          imageUrl = await storageReference
-                                              .getDownloadURL();
-                                        }
-                                      },
-                                      child: const Icon(
-                                          Icons.add_photo_alternate_outlined),
-                                    ),
-                                    TextButton(
-                                      onPressed: () async {
-                                        final pickedFile =
-                                            await ImagePicker().pickImage(
-                                          source: ImageSource.camera,
-                                        );
-
-                                        if (pickedFile != null) {
-                                          final file = File(pickedFile.path);
-                                          final storageReference = FirebaseStorage
-                                              .instance
-                                              .ref()
-                                              .child(
-                                                  'images/$objName'); // append user's name to image path
-                                          await storageReference.putFile(file);
-                                          imageUrl = await storageReference
-                                              .getDownloadURL();
-                                        }
-                                      },
-                                      child: const Icon(
-                                          Icons.add_a_photo_outlined),
-                                    ),
-                                    if (imageUrl != null)
-                                      Image.network(imageUrl!),
-                                  ],
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Cancel'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      final user = await UserData.fetchUser(
-                                          FirebaseAuth
-                                              .instance.currentUser!.email!);
-                                      final obj = {
-                                        'name': objName,
-                                        'category': selectedCategory,
-                                        'image': imageUrl,
-                                        'publishDateTime': DateTime.now(),
-                                        'addedBy': user?.name,
-                                        "location": location,
-                                        'useremail': user?.email,
-                                      };
-
-                                      final categoryCollection =
-                                          FirebaseFirestore.instance
-                                              .collection('categories')
-                                              .doc(selectedCategory)
-                                              .collection('objects');
-
-                                      // Add the obj document to the selected category collection
-                                      await categoryCollection.add(obj);
-
-                                      // ignore: use_build_context_synchronously
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Add'),
-                                  ),
-                                ],
-                              );
+                String searchTerm = '';
+                List<String> filteredCategories = categoryNames;
+                return StatefulBuilder(
+                  builder: (context, setState) {
+                    return AlertDialog(
+                      title: const Text('Select a Category'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextField(
+                            onChanged: (value) {
+                              setState(() {
+                                searchTerm = value;
+                                filteredCategories = categoryNames
+                                    .where((name) => name
+                                        .toLowerCase()
+                                        .contains(searchTerm.toLowerCase()))
+                                    .toList();
+                              });
                             },
-                          );
-                        }
-                      },
-                      child: const Text('Next'),
-                    ),
-                  ],
+                            decoration: const InputDecoration(
+                              hintText: 'Search categories...',
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          DropdownButton<String>(
+                            value: selectedCategory,
+                            items: filteredCategories
+                                .map((categoryName) => DropdownMenuItem(
+                                      value: categoryName,
+                                      child: Text(categoryName),
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                selectedCategory = value;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            if (selectedCategory != null) {
+                              Navigator.of(context).pop();
+                              showDialog<void>(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title:
+                                        const Text('Enter your good caption!'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TextField(
+                                          maxLength: 25,
+                                          onChanged: (value) {
+                                            objName = value;
+                                          },
+                                        ),
+                                        const SizedBox(height: 20.0),
+                                        TextButton(
+                                          onPressed: () async {
+                                            final pickedFile =
+                                                await ImagePicker().pickImage(
+                                              source: ImageSource.gallery,
+                                            );
+
+                                            if (pickedFile != null) {
+                                              final file =
+                                                  File(pickedFile.path);
+                                              final storageReference =
+                                                  FirebaseStorage.instance
+                                                      .ref()
+                                                      .child(
+                                                          'images/$objName'); // append user's name to image path
+                                              await storageReference
+                                                  .putFile(file);
+                                              imageUrl = await storageReference
+                                                  .getDownloadURL();
+                                            }
+                                          },
+                                          child: const Icon(Icons
+                                              .add_photo_alternate_outlined),
+                                        ),
+                                        TextButton(
+                                          onPressed: () async {
+                                            final pickedFile =
+                                                await ImagePicker().pickImage(
+                                              source: ImageSource.camera,
+                                            );
+
+                                            if (pickedFile != null) {
+                                              final file =
+                                                  File(pickedFile.path);
+                                              final storageReference =
+                                                  FirebaseStorage.instance
+                                                      .ref()
+                                                      .child(
+                                                          'images/$objName'); // append user's name to image path
+                                              await storageReference
+                                                  .putFile(file);
+                                              imageUrl = await storageReference
+                                                  .getDownloadURL();
+                                            }
+                                          },
+                                          child: const Icon(
+                                              Icons.add_a_photo_outlined),
+                                        ),
+                                        if (imageUrl != null)
+                                          Image.network(imageUrl!),
+                                      ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          final user = await UserData.fetchUser(
+                                              FirebaseAuth.instance.currentUser!
+                                                  .email!);
+                                          final obj = {
+                                            'name': objName,
+                                            'category': selectedCategory,
+                                            'image': imageUrl,
+                                            'publishDateTime': DateTime.now(),
+                                            'addedBy': user?.name,
+                                            "location": location,
+                                            'useremail': user?.email,
+                                          };
+
+                                          final categoryCollection =
+                                              FirebaseFirestore.instance
+                                                  .collection('categories')
+                                                  .doc(selectedCategory)
+                                                  .collection('objects');
+
+                                          // Add the obj document to the selected category collection
+                                          await categoryCollection.add(obj);
+
+                                          // ignore: use_build_context_synchronously
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Add'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                          },
+                          child: const Text('Next'),
+                        ),
+                      ],
+                    );
+                  },
                 );
               },
             );
           },
-        ),
+        )
       ],
     );
   }
