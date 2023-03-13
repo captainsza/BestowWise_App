@@ -1,3 +1,4 @@
+import 'package:allinbest/views/objectsview.dart';
 import 'package:allinbest/services/auth/auth_service.dart';
 import 'package:allinbest/usercreated/createbyuser.dart';
 import 'package:allinbest/views/body_ratingview.dart';
@@ -133,6 +134,23 @@ class _RatingViewState extends State<RatingView> {
               const ExpansionTile(
                 title: Text(
                   'My List',
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => UserObjectScreen()),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: const Text(
+                    'My Objects',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
 
