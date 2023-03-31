@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "509653914700",
-    "project_id": "empire-all-in-best",
-    "storage_bucket": "empire-all-in-best.appspot.com"
+    "project_number": "181017795120",
+    "project_id": "bestowise-empire",
+    "storage_bucket": "bestowise-empire.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:509653914700:android:dd83fbab4cbfb0922f90e9",
+        "mobilesdk_app_id": "1:181017795120:android:cf0aabbb72506b58c22bf5",
         "android_client_info": {
           "package_name": "com.empire.allinbest"
         }
       },
       "oauth_client": [
         {
-          "client_id": "509653914700-1poodpn6jl2ebeu4kgfkkj8fcdn740ie.apps.googleusercontent.com",
+          "client_id": "181017795120-qo4u1gj9t8rnacglls7336jfvb8nsp0a.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyD-LxIX4MfA886HpeXQyLBXAr5sDb-4n5I"
+          "current_key": "AIzaSyARQWt1mnJl9-U974QdoAm416GFf_IGZTA"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "509653914700-1poodpn6jl2ebeu4kgfkkj8fcdn740ie.apps.googleusercontent.com",
+              "client_id": "181017795120-qo4u1gj9t8rnacglls7336jfvb8nsp0a.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

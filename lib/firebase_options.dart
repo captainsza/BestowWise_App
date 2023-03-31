@@ -44,39 +44,39 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAXKEPPgCofbj0jNwCE-2z0MdlMD9rIUsk',
-    appId: '1:509653914700:web:bfa3dbfea3fd9e9a2f90e9',
-    messagingSenderId: '509653914700',
-    projectId: 'empire-all-in-best',
-    authDomain: 'empire-all-in-best.firebaseapp.com',
-    storageBucket: 'empire-all-in-best.appspot.com',
+    apiKey: 'AIzaSyDTo51bnNBWZcfrjjQbQVuSn5g5th_vFAI',
+    appId: '1:181017795120:web:df36654f4b7388abc22bf5',
+    messagingSenderId: '181017795120',
+    projectId: 'bestowise-empire',
+    authDomain: 'bestowise-empire.firebaseapp.com',
+    storageBucket: 'bestowise-empire.appspot.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyD-LxIX4MfA886HpeXQyLBXAr5sDb-4n5I',
-    appId: '1:509653914700:android:dd83fbab4cbfb0922f90e9',
-    messagingSenderId: '509653914700',
-    projectId: 'empire-all-in-best',
-    storageBucket: 'empire-all-in-best.appspot.com',
+    apiKey: 'AIzaSyARQWt1mnJl9-U974QdoAm416GFf_IGZTA',
+    appId: '1:181017795120:android:cf0aabbb72506b58c22bf5',
+    messagingSenderId: '181017795120',
+    projectId: 'bestowise-empire',
+    storageBucket: 'bestowise-empire.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAPvhq7gPq0Ughr2eJGNbiTOwN-UlwURtw',
-    appId: '1:509653914700:ios:a38d30f3243290482f90e9',
-    messagingSenderId: '509653914700',
-    projectId: 'empire-all-in-best',
-    storageBucket: 'empire-all-in-best.appspot.com',
-    iosClientId: '509653914700-l7228nvqddfoegfg3fbru5bi82q068i0.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAxUGU7TUkUvTC0JhmNpY4Onmv0WClc3Xk',
+    appId: '1:181017795120:ios:a53211848744ea5bc22bf5',
+    messagingSenderId: '181017795120',
+    projectId: 'bestowise-empire',
+    storageBucket: 'bestowise-empire.appspot.com',
+    iosClientId: '181017795120-htrbinssne65bscb4la6viau1vhseji5.apps.googleusercontent.com',
     iosBundleId: 'com.empire.allinbest',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAPvhq7gPq0Ughr2eJGNbiTOwN-UlwURtw',
-    appId: '1:509653914700:ios:a38d30f3243290482f90e9',
-    messagingSenderId: '509653914700',
-    projectId: 'empire-all-in-best',
-    storageBucket: 'empire-all-in-best.appspot.com',
-    iosClientId: '509653914700-l7228nvqddfoegfg3fbru5bi82q068i0.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAxUGU7TUkUvTC0JhmNpY4Onmv0WClc3Xk',
+    appId: '1:181017795120:ios:a53211848744ea5bc22bf5',
+    messagingSenderId: '181017795120',
+    projectId: 'bestowise-empire',
+    storageBucket: 'bestowise-empire.appspot.com',
+    iosClientId: '181017795120-htrbinssne65bscb4la6viau1vhseji5.apps.googleusercontent.com',
     iosBundleId: 'com.empire.allinbest',
   );
 }

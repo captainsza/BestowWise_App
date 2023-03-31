@@ -6,8 +6,7 @@ import '../stream/through_db.dart';
 import '../utilities/stars_rating.dart';
 
 class CategoryBody extends StatefulWidget {
-  // ignore: use_key_in_widget_constructors
-  const CategoryBody({Key? key});
+  const CategoryBody({super.key});
 
   @override
   State<CategoryBody> createState() => _CategoryBodyState();
@@ -16,12 +15,43 @@ class CategoryBody extends StatefulWidget {
 class _CategoryBodyState extends State<CategoryBody> {
   late Stream<List<String>> _imageUrlsStream;
   List<String> imageUrls = [];
-  PageController controller = PageController(initialPage: 0);
-  late double _ratingValue = 0;
+  final PageController controller = PageController(initialPage: 0);
+  double _ratingValue = 0;
   final Map<String, double> _averageRating = {};
   final Map<String, double> _itemRatings = {};
+  String? selectedCategory, userId;
 
-  String? selectedCategory;
+  @override
+  void initState() {
+    super.initState();
+    _imageUrlsStream = getImageUrlsStream();
+    userId = FirebaseAuth.instance.currentUser?.uid;
+    getImageUrls();
+    _imageUrlsStream = FirebaseStorage.instance
+        .ref()
+        .child('images/')
+        .listAll()
+        .asStream()
+        .asyncMap(
+          (result) => Future.wait(
+            result.items.map(
+              (ref) => ref.getDownloadURL(),
+            ),
+          ),
+        )
+        .asBroadcastStream();
+  }
+
+  Stream<List<String>> getImageUrlsStream() {
+    return FirebaseFirestore.instance
+        .collection('images')
+        .snapshots()
+        .map((querySnapshot) {
+      return querySnapshot.docs
+          .map<String>((doc) => doc.data()['url'] as String)
+          .toList();
+    });
+  }
 
   Future<void> getImageUrls() async {
     final storageReference = FirebaseStorage.instance.ref().child('images/');
@@ -31,38 +61,18 @@ class _CategoryBodyState extends State<CategoryBody> {
     setState(() {
       imageUrls = urls;
     });
-
-    // Retrieve existing ratings from Firestore and add them to the _itemRatings map
     final snapshot = await FirebaseFirestore.instance
         .collection('categories')
         .doc('Object Rating')
         .collection('Rating')
         .where('userId', isEqualTo: userId)
         .get();
-
     final ratings = snapshot.docs.map((doc) => doc.data()).toList();
     for (final rating in ratings) {
       final fileName = rating['name'];
       final ratingValue = rating['rating'];
       _itemRatings[fileName] = ratingValue;
     }
-  }
-
-  String? userId;
-
-  @override
-  void initState() {
-    super.initState();
-    userId = FirebaseAuth.instance.currentUser?.uid;
-    getImageUrls();
-    _imageUrlsStream = FirebaseStorage.instance
-        .ref()
-        .child('images/')
-        .listAll()
-        .asStream()
-        .asyncMap((result) =>
-            Future.wait(result.items.map((ref) => ref.getDownloadURL())))
-        .asBroadcastStream();
   }
 
   @override
@@ -79,7 +89,6 @@ class _CategoryBodyState extends State<CategoryBody> {
         final categories = snapshot.data!;
         final userAddedCategories =
             categories.where((category) => category['name'] != null).toList();
-
         return Column(
           children: [
             SizedBox(
@@ -89,9 +98,7 @@ class _CategoryBodyState extends State<CategoryBody> {
                 scrollDirection: Axis.horizontal,
                 itemCount: userAddedCategories.length,
                 separatorBuilder: (BuildContext context, int index) =>
-                    const SizedBox(
-                  width: 8.0,
-                ),
+                    const SizedBox(width: 8.0),
                 itemBuilder: (context, index) {
                   final category = userAddedCategories[index];
                   return InkWell(
@@ -99,7 +106,6 @@ class _CategoryBodyState extends State<CategoryBody> {
                       setState(() {
                         selectedCategory = category['name'];
                       });
-
                       showModalBottomSheet<void>(
                         context: context,
                         builder: (BuildContext context) {
@@ -135,8 +141,8 @@ class _CategoryBodyState extends State<CategoryBody> {
                                           final encodedName =
                                               Uri.encodeComponent(objName);
                                           final index = imageUrls.indexWhere(
-                                            (url) => url.contains(encodedName),
-                                          );
+                                              (url) =>
+                                                  url.contains(encodedName));
                                           if (index != -1) {
                                             controller.animateToPage(
                                               index,
@@ -144,16 +150,16 @@ class _CategoryBodyState extends State<CategoryBody> {
                                                   milliseconds: 500),
                                               curve: Curves.easeOut,
                                             );
+                                            Navigator.of(context).pop(Duration
+                                                .microsecondsPerMillisecond);
                                           }
                                         },
                                         child: ListTile(
                                           title: Text(
                                             obj['name'] ?? '',
                                             style: const TextStyle(
-                                              color: Colors.deepPurpleAccent,
-                                            ),
+                                                color: Colors.deepPurpleAccent),
                                           ),
-                                          // subtitle: Text(obj['subjects'].join(', ')),
                                         ),
                                       ),
                                     );
@@ -165,18 +171,18 @@ class _CategoryBodyState extends State<CategoryBody> {
                         },
                       );
                     },
-                    child: Card(
-                      color: selectedCategory == category['name']
-                          ? const Color.fromARGB(255, 176, 99, 231)
-                          : Colors.transparent,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          category['name'] ?? '',
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                          ),
-                        ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 16.0, horizontal: 16.0),
+                      decoration: BoxDecoration(
+                        color: category['name'] == selectedCategory
+                            ? Colors.deepPurple[100]
+                            : Colors.grey[200],
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: Text(
+                        category['name'],
+                        style: const TextStyle(color: Colors.black),
                       ),
                     ),
                   );
@@ -201,11 +207,13 @@ class _CategoryBodyState extends State<CategoryBody> {
                       (url) {
                         final uri = Uri.parse(url);
                         final fileName = uri.pathSegments.last;
-
                         return Stack(
                           children: [
                             Positioned.fill(
-                              child: Image.network(url),
+                              child: Image.network(
+                                url,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                             Positioned(
                               bottom: 0,
@@ -227,8 +235,10 @@ class _CategoryBodyState extends State<CategoryBody> {
                                     },
                                   ),
                                   ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0x00000000),
+                                    ),
                                     onPressed: () async {
-                                      // Store the rating in Firestore
                                       await FirebaseFirestore.instance
                                           .collection('categories')
                                           .doc('Object Rating')
@@ -239,11 +249,7 @@ class _CategoryBodyState extends State<CategoryBody> {
                                         'userId': userId,
                                         'PublishDateTime': DateTime.now(),
                                       });
-
-                                      // Add the rating to the _itemRatings map
                                       _itemRatings[fileName] = _ratingValue;
-
-                                      // Get the average rating and display it
                                       final averageRating = _itemRatings.values
                                               .reduce((a, b) => a + b) /
                                           _itemRatings.length;
