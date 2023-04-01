@@ -1,7 +1,6 @@
 import 'package:allinbest/services/auth/auth_service.dart';
 import 'package:allinbest/usercreated/createbyuser.dart';
 import 'package:allinbest/views/body_ratingview.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../constants/routes.dart';
@@ -58,12 +57,45 @@ class _RatingViewState extends State<RatingView> {
         extendBodyBehindAppBar: false,
         appBar: AppBar(
           centerTitle: true,
-          leading: IconButton(
-            iconSize: 40,
-            icon: const Icon(CupertinoIcons.line_horizontal_3_decrease_circle),
-            onPressed: () {
+          leading: GestureDetector(
+            onTap: () {
               _scaffoldKey.currentState!.openDrawer();
             },
+            child: userData?.image != null
+                ? Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.grey[400]!,
+                        width: 5.0,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(userData!.image!),
+                      radius: 18.0,
+                      backgroundColor:
+                          Colors.grey[300], // optional background color
+                      foregroundColor:
+                          Colors.black, // optional foreground color
+                    ),
+                  )
+                : Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.grey[400]!,
+                        width: 5.0,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 18.0,
+                      backgroundColor:
+                          Colors.grey[300], // optional background color
+                      foregroundColor: Colors.black,
+                      child:
+                          const Icon(Icons.person), // optional foreground color
+                    ),
+                  ),
           ),
           title: const Text(
             'BestowWise',

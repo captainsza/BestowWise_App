@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -7,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_arc_speed_dial/flutter_speed_dial_menu_button.dart';
 import 'package:flutter_arc_speed_dial/main_menu_floating_action_button.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../services/auth/currentuserprofile.dart';
 import '../views/objectsview.dart';
 import 'locationusing.dart';
@@ -85,6 +83,7 @@ class _UserAddState extends State<UserAdd> {
             List<String> categorySubjects = [];
             String? location = await getCurrentLocation();
 
+            // ignore: use_build_context_synchronously
             await showDialog<void>(
               context: context,
               builder: (context) {
@@ -113,6 +112,7 @@ class _UserAddState extends State<UserAdd> {
             if (validateCategoryName(categoryName)) {
               categoryNames.add(categoryName);
 
+              // ignore: use_build_context_synchronously
               await showDialog<void>(
                 context: context,
                 builder: (context) {
@@ -256,8 +256,7 @@ class _UserAddState extends State<UserAdd> {
                                               final storageReference =
                                                   FirebaseStorage.instance
                                                       .ref()
-                                                      .child(
-                                                          'images/$objName'); // append user's name to image path
+                                                      .child('images/$objName');
                                               await storageReference
                                                   .putFile(file);
                                               imageUrl = await storageReference
@@ -280,8 +279,7 @@ class _UserAddState extends State<UserAdd> {
                                               final storageReference =
                                                   FirebaseStorage.instance
                                                       .ref()
-                                                      .child(
-                                                          'images/$objName'); // append user's name to image path
+                                                      .child('images/$objName');
                                               await storageReference
                                                   .putFile(file);
                                               imageUrl = await storageReference
@@ -323,7 +321,6 @@ class _UserAddState extends State<UserAdd> {
                                                   .doc(selectedCategory)
                                                   .collection('objects');
 
-                                          // Add the obj document to the selected category collection
                                           await categoryCollection.add(obj);
 
                                           // ignore: use_build_context_synchronously
@@ -352,7 +349,6 @@ class _UserAddState extends State<UserAdd> {
         FloatingActionButton(
           tooltip: 'Your List',
           onPressed: () {
-            //if need to close menu after click
             Navigator.push(
               context,
               MaterialPageRoute(

@@ -60,6 +60,7 @@ dependencies:
   chat_gpt_sdk: ^2.0.0
   loading_indicator: ^3.1.0
   flutter_arc_speed_dial: ^2.0.1
+  flutter_typeahead: ^4.3.7
   
 
   

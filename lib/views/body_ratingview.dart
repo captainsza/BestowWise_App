@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import '../stream/through_db.dart';
 import '../utilities/stars_rating.dart';
 
@@ -109,6 +110,7 @@ class _CategoryBodyState extends State<CategoryBody> {
                       showModalBottomSheet<void>(
                         context: context,
                         builder: (BuildContext context) {
+                          List<Map<String, dynamic>> allObjects = [];
                           return StreamBuilder<List<Map<String, dynamic>>>(
                             stream: getObjectsStream(selectedCategory!),
                             builder: (BuildContext context,
@@ -118,53 +120,111 @@ class _CategoryBodyState extends State<CategoryBody> {
                                 return const Center(
                                     child: Text('Error fetching objects'));
                               }
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              }
                               final objects = snapshot.data ?? [];
+                              allObjects.addAll(objects);
                               if (objects.isEmpty) {
                                 return const Center(
                                     child: Text('No objects available'));
                               }
-                              return SizedBox(
-                                height: 300.0,
-                                child: ListView.builder(
-                                  itemCount: objects.length,
-                                  itemBuilder: (context, index) {
-                                    final obj = objects[index];
-                                    return Card(
-                                      child: InkWell(
-                                        onTap: () {
-                                          final objName = obj['name'] ?? '';
-                                          final encodedName =
-                                              Uri.encodeComponent(objName);
-                                          final index = imageUrls.indexWhere(
-                                              (url) =>
-                                                  url.contains(encodedName));
-                                          if (index != -1) {
-                                            controller.animateToPage(
-                                              index,
-                                              duration: const Duration(
-                                                  milliseconds: 500),
-                                              curve: Curves.easeOut,
-                                            );
-                                            Navigator.of(context).pop(Duration
-                                                .microsecondsPerMillisecond);
-                                          }
-                                        },
-                                        child: ListTile(
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: TypeAheadField(
+                                      suggestionsCallback: (pattern) async {
+                                        // retrieve all objects from database
+                                        List<Map<String, dynamic>> objects =
+                                            await getObjectsStream(
+                                                    selectedCategory!)
+                                                .first;
+                                        // filter out objects that do not match the pattern
+                                        return objects.where((obj) =>
+                                            obj['name']
+                                                .toString()
+                                                .toLowerCase()
+                                                .contains(
+                                                    pattern.toLowerCase()));
+                                      },
+                                      itemBuilder: (context, suggestion) {
+                                        final objName =
+                                            suggestion['name'] ?? '';
+                                        return ListTile(
                                           title: Text(
-                                            obj['name'] ?? '',
+                                            objName,
                                             style: const TextStyle(
-                                                color: Colors.deepPurpleAccent),
+                                              color: Colors.deepPurpleAccent,
+                                            ),
                                           ),
+                                        );
+                                      },
+                                      onSuggestionSelected: (suggestion) {
+                                        final objName =
+                                            suggestion['name'] ?? '';
+                                        final encodedName =
+                                            Uri.encodeComponent(objName);
+                                        final index = imageUrls.indexWhere(
+                                            (url) => url.contains(encodedName));
+                                        if (index != -1) {
+                                          controller.animateToPage(
+                                            index,
+                                            duration: const Duration(
+                                                milliseconds: 500),
+                                            curve: Curves.easeOut,
+                                          );
+                                          Navigator.of(context).pop(Duration
+                                              .microsecondsPerMillisecond);
+                                        }
+                                      },
+                                      textFieldConfiguration:
+                                          const TextFieldConfiguration(
+                                        decoration: InputDecoration(
+                                          border: OutlineInputBorder(),
+                                          hintText: 'Search objects...',
                                         ),
                                       ),
-                                    );
-                                  },
-                                ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: ListView.builder(
+                                      itemCount: objects.length,
+                                      itemBuilder: (context, index) {
+                                        final obj = objects[index];
+                                        return Card(
+                                          child: InkWell(
+                                            onTap: () {
+                                              final objName = obj['name'] ?? '';
+                                              final encodedName =
+                                                  Uri.encodeComponent(objName);
+                                              final index = imageUrls
+                                                  .indexWhere((url) => url
+                                                      .contains(encodedName));
+                                              if (index != -1) {
+                                                controller.animateToPage(
+                                                  index,
+                                                  duration: const Duration(
+                                                      milliseconds: 500),
+                                                  curve: Curves.easeOut,
+                                                );
+                                                Navigator.of(context).pop(Duration
+                                                    .microsecondsPerMillisecond);
+                                              }
+                                            },
+                                            child: ListTile(
+                                              title: Text(
+                                                obj['name'] ?? '',
+                                                style: const TextStyle(
+                                                  color:
+                                                      Colors.deepPurpleAccent,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
                               );
                             },
                           );

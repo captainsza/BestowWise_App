@@ -1,23 +1,59 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class UserObjectScreen extends StatelessWidget {
+class UserObjectScreen extends StatefulWidget {
   const UserObjectScreen({Key? key, required this.user}) : super(key: key);
 
   final User? user;
 
   @override
+  // ignore: library_private_types_in_public_api
+  _UserObjectScreenState createState() => _UserObjectScreenState();
+}
+
+class _UserObjectScreenState extends State<UserObjectScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearching = false;
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Objects Added By User'),
-        backgroundColor: Colors.deepPurple, // Set app bar color to deep purple
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                textAlignVertical: TextAlignVertical.center,
+                decoration: const InputDecoration(
+                  hintText: "Search Objects",
+                  border: InputBorder.none,
+                ),
+                autofocus: true,
+                onChanged: (value) {
+                  setState(() {});
+                },
+              )
+            : const Text('Objects Added By User'),
+        backgroundColor: Colors.deepPurple,
+        actions: [
+          IconButton(
+            onPressed: () {
+              setState(() {
+                _isSearching = !_isSearching;
+                _searchController.clear();
+              });
+            },
+            icon: _isSearching
+                ? const Icon(Icons.close)
+                : const Icon(Icons.search),
+          ),
+        ],
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collectionGroup('objects')
-            .where('useremail', isEqualTo: user?.email)
+            .where('useremail', isEqualTo: widget.user?.email)
             .snapshots(),
         builder: (BuildContext context,
             AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
@@ -34,6 +70,15 @@ class UserObjectScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 18.0)));
           }
 
+          if (_isSearching && _searchController.text.isNotEmpty) {
+            objects = objects
+                .where((object) => object
+                    .data()['name']
+                    .toLowerCase()
+                    .contains(_searchController.text.toLowerCase()))
+                .toList();
+          }
+
           return Form(
             child: ListView.builder(
               itemCount: objects.length,
@@ -47,53 +92,52 @@ class UserObjectScreen extends StatelessWidget {
                     alignment: Alignment.centerRight,
                     child: const Icon(Icons.delete, color: Colors.white),
                   ),
-                  onDismissed: (direction) {
-                    // Delete the object from the database
-                    FirebaseFirestore.instance
-                        .collection('categories')
-                        .doc(objects[index].data()['category'])
-                        .collection('objects')
-                        .doc(objects[index].id)
-                        .delete();
-                  },
-                  child: ListTile(
-                    title: TextFormField(
-                      initialValue: objects[index].data()['name'],
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
-                        labelStyle: TextStyle(
-                          color: Colors
-                              .deepPurple, // Set label color to deep purple
-                        ),
-                      ),
-                      style: const TextStyle(
-                        color:
-                            Colors.deepPurple, // Set text color to deep purple
-                      ),
-                      onSaved: (newValue) {
-                        // Save the new name to the database
-                        FirebaseFirestore.instance
+                  onDismissed: (direction) async {
+                    try {
+                      final userEmail =
+                          FirebaseAuth.instance.currentUser!.email!;
+                      final addedByEmail = objects[index]
+                          .data()['useremail']
+                          .replaceAll(' ', '_');
+                      if (userEmail == addedByEmail) {
+                        await FirebaseFirestore.instance
                             .collection('categories')
                             .doc(objects[index].data()['category'])
                             .collection('objects')
                             .doc(objects[index].id)
-                            .update({'name': newValue});
-                      },
+                            .delete();
+
+                        // Delete the image from Firebase Storage
+                        final storageReference = FirebaseStorage.instance
+                            .ref()
+                            .child('images/${objects[index].data()['name']}');
+                        await storageReference.delete();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    "You can only delete objects you added.")));
+                      }
+                    } on FirebaseException catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(e.message.toString())));
+                    } on Exception catch (e) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text(e.toString())));
+                    }
+                  },
+                  child: ListTile(
+                    title: Text(
+                      objects[index].data()['name'],
+                      style: const TextStyle(
+                        color: Colors.deepPurple,
+                      ),
                     ),
                     subtitle: Text(
                       objects[index].data()['category'],
                       style: const TextStyle(
-                        color: Colors
-                            .deepPurple, // Set subtitle color to deep purple
+                        color: Colors.deepPurple,
                       ),
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.save),
-                      color: Colors.deepPurple, // Set icon color to deep purple
-                      onPressed: () {
-                        // Save the changes to the database
-                        Form.of(context).save();
-                      },
                     ),
                   ),
                 );
