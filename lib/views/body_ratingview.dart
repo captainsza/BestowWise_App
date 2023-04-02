@@ -3,12 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import '../services/auth/currentuserprofile.dart';
 import '../stream/through_db.dart';
 import '../utilities/stars_rating.dart';
 
 class CategoryBody extends StatefulWidget {
   const CategoryBody({super.key});
-
   @override
   State<CategoryBody> createState() => _CategoryBodyState();
 }
@@ -25,7 +25,7 @@ class _CategoryBodyState extends State<CategoryBody> {
   @override
   void initState() {
     super.initState();
-    _imageUrlsStream = getImageUrlsStream();
+
     userId = FirebaseAuth.instance.currentUser?.uid;
     getImageUrls();
     _imageUrlsStream = FirebaseStorage.instance
@@ -41,17 +41,6 @@ class _CategoryBodyState extends State<CategoryBody> {
           ),
         )
         .asBroadcastStream();
-  }
-
-  Stream<List<String>> getImageUrlsStream() {
-    return FirebaseFirestore.instance
-        .collection('images')
-        .snapshots()
-        .map((querySnapshot) {
-      return querySnapshot.docs
-          .map<String>((doc) => doc.data()['url'] as String)
-          .toList();
-    });
   }
 
   Future<void> getImageUrls() async {
@@ -286,7 +275,8 @@ class _CategoryBodyState extends State<CategoryBody> {
                                     style: const TextStyle(fontSize: 20),
                                   ),
                                   StarsRating(
-                                    rating: _itemRatings[fileName] ?? 0,
+                                    rating: (_itemRatings[fileName] ?? 0)
+                                        .toDouble(),
                                     onRatingChanged: (double rating) {
                                       setState(() {
                                         _itemRatings[fileName] = rating;
@@ -294,31 +284,108 @@ class _CategoryBodyState extends State<CategoryBody> {
                                       });
                                     },
                                   ),
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0x00000000),
-                                    ),
-                                    onPressed: () async {
-                                      await FirebaseFirestore.instance
-                                          .collection('categories')
-                                          .doc('Object Rating')
-                                          .collection('Rating')
-                                          .add({
-                                        'name': fileName,
-                                        'rating': _ratingValue,
-                                        'userId': userId,
-                                        'PublishDateTime': DateTime.now(),
-                                      });
-                                      _itemRatings[fileName] = _ratingValue;
-                                      final averageRating = _itemRatings.values
-                                              .reduce((a, b) => a + b) /
-                                          _itemRatings.length;
-                                      setState(() {
-                                        _averageRating[fileName] =
-                                            averageRating;
-                                      });
-                                    },
-                                    child: const Text('Submit'),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              const Color(0x00000000),
+                                        ),
+                                        onPressed: () async {
+                                          final user = await UserData.fetchUser(
+                                              FirebaseAuth.instance.currentUser!
+                                                  .email!);
+                                          await FirebaseFirestore.instance
+                                              .collection('categories')
+                                              .doc('Object Rating')
+                                              .collection('Ratings')
+                                              .add({
+                                            'name': fileName,
+                                            'rating': _ratingValue,
+                                            'userId': user?.email,
+                                            'username': user?.name,
+                                            'PublishDateTime': DateTime.now(),
+                                          });
+                                          _itemRatings[fileName] = _ratingValue;
+
+                                          // Count all ratings
+                                          double totalRatings = 0;
+                                          _itemRatings.forEach((key, value) {
+                                            totalRatings += value;
+                                          });
+
+                                          // Calculate average rating
+                                          double averageRating = totalRatings /
+                                              _itemRatings.length;
+                                          _averageRating[fileName] =
+                                              averageRating;
+                                          await FirebaseFirestore.instance
+                                              .collection("categories")
+                                              .doc('Object Rating')
+                                              .collection('Average Rating')
+                                              .doc('avg ratings')
+                                              .set({
+                                            "name": user?.name,
+                                            "rating": averageRating,
+                                            "object": fileName,
+                                          });
+                                        },
+                                        child: const Text('Submit'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          final snapshot =
+                                              await FirebaseFirestore.instance
+                                                  .collection('categories')
+                                                  .doc('Object Rating')
+                                                  .collection('Ratings')
+                                                  .where('name',
+                                                      isEqualTo: fileName)
+                                                  .get();
+                                          if (snapshot.docs.isNotEmpty) {
+                                            final ratings = snapshot.docs
+                                                .map((doc) => doc.data())
+                                                .toList();
+                                            // ignore: use_build_context_synchronously
+                                            showModalBottomSheet<void>(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: ratings
+                                                      .map((rating) => ListTile(
+                                                            leading: StarsRating(
+                                                                rating: rating[
+                                                                            'rating']
+                                                                        ?.toDouble() ??
+                                                                    0,
+                                                                onRatingChanged:
+                                                                    (double
+                                                                        ratingVal) {}),
+                                                            title: Text(rating[
+                                                                    'username'] ??
+                                                                ''),
+                                                            subtitle: Text(rating[
+                                                                        'PublishDateTime']
+                                                                    ?.toDate()
+                                                                    .toString() ??
+                                                                ''),
+                                                          ))
+                                                      .toList(),
+                                                );
+                                              },
+                                            );
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              const Color(0x00000000),
+                                        ),
+                                        child: const Icon(Icons.person),
+                                      ),
+                                    ],
                                   ),
                                   if (_averageRating[fileName] != null)
                                     Text(

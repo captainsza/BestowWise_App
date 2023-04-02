@@ -66,7 +66,7 @@ class _RatingViewState extends State<RatingView> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.grey[400]!,
+                        color: Colors.transparent,
                         width: 5.0,
                       ),
                     ),

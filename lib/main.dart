@@ -5,13 +5,14 @@ import 'package:allinbest/views/login_view.dart';
 import 'package:allinbest/views/rating_view.dart';
 import 'package:allinbest/views/register_view/register_view.dart';
 import 'package:allinbest/views/verify_email_view.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await Firebase.initializeApp();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   runApp(

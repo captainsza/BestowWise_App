@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class StarsRating extends StatefulWidget {
-  final Function(double) onRatingChanged;
+  final dynamic Function(double)? onRatingChanged;
   final double rating;
 
   const StarsRating({
@@ -42,7 +42,7 @@ class _StarsRatingState extends State<StarsRating> {
         setState(() {
           _ratingValue = rating;
         });
-        widget.onRatingChanged(rating);
+        widget.onRatingChanged!(rating);
       },
     );
   }

@@ -42,4 +42,20 @@ class UserData {
         (snapshot) =>
             snapshot.docs.map((doc) => UserData.fromFirestore(doc)).toList());
   }
+
+  static Future<UserData?> fetchUsernew(String email) async {
+    final userDocs = await FirebaseFirestore.instance
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .get();
+    if (userDocs.docs.isNotEmpty) {
+      final userData = userDocs.docs.first.data();
+      return UserData(
+          email: userData['email'],
+          name: userData['name'],
+          addedBy: '',
+          city: '');
+    }
+    return null;
+  }
 }
