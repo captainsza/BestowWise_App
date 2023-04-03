@@ -66,8 +66,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '181017795120',
     projectId: 'bestowise-empire',
     storageBucket: 'bestowise-empire.appspot.com',
-    iosClientId: '181017795120-htrbinssne65bscb4la6viau1vhseji5.apps.googleusercontent.com',
-    iosBundleId: 'com.empire.allinbest',
+    iosClientId:
+        '181017795120-htrbinssne65bscb4la6viau1vhseji5.apps.googleusercontent.com',
+    iosBundleId: 'com.empire.BestoWise',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -76,7 +77,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '181017795120',
     projectId: 'bestowise-empire',
     storageBucket: 'bestowise-empire.appspot.com',
-    iosClientId: '181017795120-htrbinssne65bscb4la6viau1vhseji5.apps.googleusercontent.com',
-    iosBundleId: 'com.empire.allinbest',
+    iosClientId:
+        '181017795120-htrbinssne65bscb4la6viau1vhseji5.apps.googleusercontent.com',
+    iosBundleId: 'com.empire.BestoWise',
   );
 }

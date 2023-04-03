@@ -1,5 +1,5 @@
-import 'package:allinbest/constants/routes.dart';
-import 'package:allinbest/services/auth/auth_service.dart';
+import 'package:BestoWise/constants/routes.dart';
+import 'package:BestoWise/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class VerifyEmailView extends StatefulWidget {

@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.empire" "\0"
-            VALUE "FileDescription", "allinbest" "\0"
+            VALUE "FileDescription", "BestoWise" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "allinbest" "\0"
+            VALUE "InternalName", "BestoWise" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2023 com.empire. All rights reserved." "\0"
-            VALUE "OriginalFilename", "allinbest.exe" "\0"
-            VALUE "ProductName", "allinbest" "\0"
+            VALUE "OriginalFilename", "BestoWise.exe" "\0"
+            VALUE "ProductName", "BestoWise" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

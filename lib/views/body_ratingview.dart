@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:multi_state_button/multi_state_button.dart';
 import '../services/auth/currentuserprofile.dart';
 import '../stream/through_db.dart';
 import '../utilities/stars_rating.dart';
@@ -14,6 +15,11 @@ class CategoryBody extends StatefulWidget {
 }
 
 class _CategoryBodyState extends State<CategoryBody> {
+  static const String _submit = "Submit";
+  static const String _loading = "Loading";
+  static const String _success = "Success";
+  final MultiStateButtonController multiStateButtonController =
+      MultiStateButtonController(initialStateName: _submit);
   late Stream<List<String>> _imageUrlsStream;
   List<String> imageUrls = [];
   final PageController controller = PageController(initialPage: 0);
@@ -287,51 +293,115 @@ class _CategoryBodyState extends State<CategoryBody> {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              const Color(0x00000000),
-                                        ),
-                                        onPressed: () async {
-                                          final user = await UserData.fetchUser(
-                                              FirebaseAuth.instance.currentUser!
-                                                  .email!);
-                                          await FirebaseFirestore.instance
-                                              .collection('categories')
-                                              .doc('Object Rating')
-                                              .collection('Ratings')
-                                              .add({
-                                            'name': fileName,
-                                            'rating': _ratingValue,
-                                            'userId': user?.email,
-                                            'username': user?.name,
-                                            'PublishDateTime': DateTime.now(),
-                                          });
-                                          _itemRatings[fileName] = _ratingValue;
+                                      MultiStateButton(
+                                        multiStateButtonController:
+                                            multiStateButtonController,
+                                        buttonStates: [
+                                          ButtonState(
+                                            stateName: _submit,
+                                            child: const Text(
+                                              _submit,
+                                            ),
+                                            textStyle: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 20),
+                                            size: const Size(160, 48),
+                                            color: Colors.transparent,
+                                            onPressed: () async {
+                                              multiStateButtonController
+                                                  .setButtonState = _loading;
+                                              final user =
+                                                  await UserData.fetchUser(
+                                                FirebaseAuth.instance
+                                                    .currentUser!.email!,
+                                              );
+                                              await FirebaseFirestore.instance
+                                                  .collection('categories')
+                                                  .doc('Object Rating')
+                                                  .collection('Ratings')
+                                                  .add({
+                                                'name': fileName,
+                                                'rating': _ratingValue,
+                                                'userId': user?.email,
+                                                'username': user?.name,
+                                                'PublishDateTime':
+                                                    DateTime.now(),
+                                              });
+                                              _itemRatings[fileName] =
+                                                  _ratingValue;
 
-                                          // Count all ratings
-                                          double totalRatings = 0;
-                                          _itemRatings.forEach((key, value) {
-                                            totalRatings += value;
-                                          });
+                                              // Count all ratings
+                                              double totalRatings = 0;
+                                              _itemRatings
+                                                  .forEach((key, value) {
+                                                totalRatings += value;
+                                              });
 
-                                          // Calculate average rating
-                                          double averageRating = totalRatings /
-                                              _itemRatings.length;
-                                          _averageRating[fileName] =
-                                              averageRating;
-                                          await FirebaseFirestore.instance
-                                              .collection("categories")
-                                              .doc('Object Rating')
-                                              .collection('Average Rating')
-                                              .doc('avg ratings')
-                                              .set({
-                                            "name": user?.name,
-                                            "rating": averageRating,
-                                            "object": fileName,
-                                          });
-                                        },
-                                        child: const Text('Submit'),
+                                              // Calculate average rating
+                                              double averageRating =
+                                                  totalRatings /
+                                                      _itemRatings.length;
+                                              _averageRating[fileName] =
+                                                  averageRating;
+                                              await FirebaseFirestore.instance
+                                                  .collection("categories")
+                                                  .doc('Object Rating')
+                                                  .collection('Average Rating')
+                                                  .doc('avg ratings')
+                                                  .set({
+                                                "name": user?.name,
+                                                "rating": averageRating,
+                                                "object": fileName,
+                                              });
+                                              multiStateButtonController
+                                                  .setButtonState = _success;
+                                            },
+                                          ),
+                                          const ButtonState(
+                                            stateName: _loading,
+                                            alignment: Alignment.center,
+                                            child: Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 3,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.deepPurple,
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(48)),
+                                            ),
+                                            size: Size(48, 48),
+                                          ),
+                                          ButtonState(
+                                            stateName: _success,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: const [
+                                                Text(
+                                                  _success,
+                                                ),
+                                                SizedBox(
+                                                  width: 16,
+                                                ),
+                                                Icon(
+                                                  Icons.check,
+                                                  color: Colors.white,
+                                                )
+                                              ],
+                                            ),
+                                            textStyle: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 22),
+                                            color: Colors.transparent,
+                                            size: const Size(200, 48),
+                                            onPressed: () =>
+                                                multiStateButtonController
+                                                    .setButtonState = _submit,
+                                          ),
+                                        ],
                                       ),
                                       ElevatedButton(
                                         onPressed: () async {
@@ -351,37 +421,42 @@ class _CategoryBodyState extends State<CategoryBody> {
                                             showModalBottomSheet<void>(
                                               context: context,
                                               builder: (BuildContext context) {
-                                                return Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: ratings
-                                                      .map((rating) => ListTile(
-                                                            leading: StarsRating(
-                                                                rating: rating[
-                                                                            'rating']
-                                                                        ?.toDouble() ??
-                                                                    0,
-                                                                onRatingChanged:
-                                                                    (double
-                                                                        ratingVal) {}),
-                                                            title: Text(rating[
-                                                                    'username'] ??
-                                                                ''),
-                                                            subtitle: Text(rating[
-                                                                        'PublishDateTime']
-                                                                    ?.toDate()
-                                                                    .toString() ??
-                                                                ''),
-                                                          ))
-                                                      .toList(),
+                                                return SingleChildScrollView(
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: ratings
+                                                        .map(
+                                                            (rating) =>
+                                                                ListTile(
+                                                                  leading:
+                                                                      StarsRating(
+                                                                    rating:
+                                                                        rating['rating']?.toDouble() ??
+                                                                            0,
+                                                                    onRatingChanged:
+                                                                        (double
+                                                                            ratingVal) {},
+                                                                  ),
+                                                                  title: Text(
+                                                                      rating['username'] ??
+                                                                          ''),
+                                                                  subtitle: Text(
+                                                                      rating['PublishDateTime']
+                                                                              ?.toDate()
+                                                                              .toString() ??
+                                                                          ''),
+                                                                ))
+                                                        .toList(),
+                                                  ),
                                                 );
                                               },
                                             );
                                           }
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              const Color(0x00000000),
+                                          backgroundColor: const Color.fromARGB(
+                                              0, 252, 250, 250),
                                         ),
                                         child: const Icon(Icons.person),
                                       ),

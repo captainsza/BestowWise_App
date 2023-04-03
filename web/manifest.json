@@ -1,6 +1,6 @@
 {
-    "name": "allinbest",
-    "short_name": "allinbest",
+    "name": "BestoWise",
+    "short_name": "BestoWise",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

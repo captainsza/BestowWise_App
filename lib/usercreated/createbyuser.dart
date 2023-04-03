@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_arc_speed_dial/flutter_speed_dial_menu_button.dart';
 import 'package:flutter_arc_speed_dial/main_menu_floating_action_button.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/auth/currentuserprofile.dart';
 import '../views/objectsview.dart';
@@ -172,6 +173,13 @@ class _UserAddState extends State<UserAdd> {
             String? location = await getCurrentLocation();
 
             // ignore: use_build_context_synchronously
+            LatLng? pickedLocation = await showLocationPicker(context);
+
+            if (pickedLocation == null) {
+              return;
+            }
+
+            // ignore: use_build_context_synchronously
             await showDialog<void>(
               context: context,
               builder: (context) {
@@ -313,6 +321,9 @@ class _UserAddState extends State<UserAdd> {
                                             'addedBy': user?.name,
                                             "location": location,
                                             'useremail': user?.email,
+                                            'Mark_location': GeoPoint(
+                                                pickedLocation.latitude,
+                                                pickedLocation.longitude),
                                           };
 
                                           final categoryCollection =

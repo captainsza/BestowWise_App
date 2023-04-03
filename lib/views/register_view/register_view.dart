@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:allinbest/constants/routes.dart';
-import 'package:allinbest/services/auth/auth_exceptions.dart';
-import 'package:allinbest/services/auth/auth_service.dart';
-import 'package:allinbest/utilities/deco.dart';
+import 'package:BestoWise/constants/routes.dart';
+import 'package:BestoWise/services/auth/auth_exceptions.dart';
+import 'package:BestoWise/services/auth/auth_service.dart';
+import 'package:BestoWise/utilities/deco.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';

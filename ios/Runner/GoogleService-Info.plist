@@ -13,11 +13,11 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.empire.allinbest</string>
+	<string>com.empire.BestoWise</string>
 	<key>PROJECT_ID</key>
-	<string>allinbest-project</string>
+	<string>BestoWise-project</string>
 	<key>STORAGE_BUCKET</key>
-	<string>allinbest-project.appspot.com</string>
+	<string>BestoWise-project.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>

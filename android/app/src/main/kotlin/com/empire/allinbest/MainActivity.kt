@@ -1,4 +1,4 @@
-package com.empire.allinbest
+package com.empire.BestoWise
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,18 +1,16 @@
-import 'package:allinbest/constants/routes.dart';
-import 'package:allinbest/services/auth/auth_service.dart';
-import 'package:allinbest/utilities/locationpermission.dart';
-import 'package:allinbest/views/login_view.dart';
-import 'package:allinbest/views/rating_view.dart';
-import 'package:allinbest/views/register_view/register_view.dart';
-import 'package:allinbest/views/verify_email_view.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:BestoWise/constants/routes.dart';
+import 'package:BestoWise/services/auth/auth_service.dart';
+import 'package:BestoWise/utilities/locationpermission.dart';
+import 'package:BestoWise/views/login_view.dart';
+import 'package:BestoWise/views/rating_view.dart';
+import 'package:BestoWise/views/register_view/register_view.dart';
+import 'package:BestoWise/views/verify_email_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   runApp(

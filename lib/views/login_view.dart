@@ -1,6 +1,6 @@
-import 'package:allinbest/constants/routes.dart';
-import 'package:allinbest/services/auth/auth_exceptions.dart';
-import 'package:allinbest/services/auth/auth_service.dart';
+import 'package:BestoWise/constants/routes.dart';
+import 'package:BestoWise/services/auth/auth_exceptions.dart';
+import 'package:BestoWise/services/auth/auth_service.dart';
 
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';

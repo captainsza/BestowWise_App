@@ -1,13 +1,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.empire.allinbest">
+    package="com.empire.BestoWise">
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
 
    <application
-        android:label="allinbest"
+        android:label="BestoWise"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyAudXAAo6M0p3789ok1aoDYuoQsaD0XbKA"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

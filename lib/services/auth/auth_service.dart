@@ -1,6 +1,6 @@
-import 'package:allinbest/services/auth/auth_provider.dart';
-import 'package:allinbest/services/auth/auth_user.dart';
-import 'package:allinbest/services/auth/firebase_auth_provider.dart';
+import 'package:BestoWise/services/auth/auth_provider.dart';
+import 'package:BestoWise/services/auth/auth_user.dart';
+import 'package:BestoWise/services/auth/firebase_auth_provider.dart';
 
 class AuthService implements AuthProvider {
   final AuthProvider provider;
