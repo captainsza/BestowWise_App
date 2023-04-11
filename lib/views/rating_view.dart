@@ -55,76 +55,81 @@ class _RatingViewState extends State<RatingView> {
       home: Scaffold(
         key: _scaffoldKey,
         extendBodyBehindAppBar: false,
-        appBar: AppBar(
-          centerTitle: true,
-          leading: GestureDetector(
-            onTap: () {
-              _scaffoldKey.currentState!.openDrawer();
-            },
-            child: userData?.image != null
-                ? Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.transparent,
-                        width: 5.0,
+        appBar: PreferredSize(
+          preferredSize: const Size(100, 50),
+          child: SafeArea(
+            child: AppBar(
+              centerTitle: true,
+              leading: GestureDetector(
+                onTap: () {
+                  _scaffoldKey.currentState!.openDrawer();
+                },
+                child: userData?.image != null
+                    ? Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.transparent,
+                            width: 5.0,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          backgroundImage: NetworkImage(userData!.image!),
+                          radius: 18.0,
+                          backgroundColor:
+                              Colors.grey[300], // optional background color
+                          foregroundColor:
+                              Colors.black, // optional foreground color
+                        ),
+                      )
+                    : Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.grey[400]!,
+                            width: 5.0,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 18.0,
+                          backgroundColor:
+                              Colors.grey[300], // optional background color
+                          foregroundColor: Colors.black,
+                          child: const Icon(
+                              Icons.person), // optional foreground color
+                        ),
                       ),
-                    ),
-                    child: CircleAvatar(
-                      backgroundImage: NetworkImage(userData!.image!),
-                      radius: 18.0,
-                      backgroundColor:
-                          Colors.grey[300], // optional background color
-                      foregroundColor:
-                          Colors.black, // optional foreground color
-                    ),
-                  )
-                : Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.grey[400]!,
-                        width: 5.0,
-                      ),
-                    ),
-                    child: CircleAvatar(
-                      radius: 18.0,
-                      backgroundColor:
-                          Colors.grey[300], // optional background color
-                      foregroundColor: Colors.black,
-                      child:
-                          const Icon(Icons.person), // optional foreground color
+              ),
+              title: const Text(
+                'BestowWise',
+              ),
+              flexibleSpace: Image(
+                image: AssetImage(appBarImageAssetPath),
+                fit: BoxFit.cover,
+              ),
+              backgroundColor: Colors.transparent,
+              actions: [
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      isDarkMode = !isDarkMode;
+                    });
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 40.0),
+                    child: Lottie.asset(
+                      isDarkMode
+                          ? 'assets/LOTTIES/lightmode.json' // Replace with your dark mode animation
+                          : 'assets/LOTTIES/darkmode.json', // Replace with your light mode animation
+                      width: 24,
+                      height: 24,
+                      fit: BoxFit.cover,
                     ),
                   ),
-          ),
-          title: const Text(
-            'BestowWise',
-          ),
-          flexibleSpace: Image(
-            image: AssetImage(appBarImageAssetPath),
-            fit: BoxFit.cover,
-          ),
-          backgroundColor: Colors.transparent,
-          actions: [
-            InkWell(
-              onTap: () {
-                setState(() {
-                  isDarkMode = !isDarkMode;
-                });
-              },
-              child: Container(
-                margin: const EdgeInsets.only(right: 40.0),
-                child: Lottie.asset(
-                  isDarkMode
-                      ? 'assets/LOTTIES/lightmode.json' // Replace with your dark mode animation
-                      : 'assets/LOTTIES/darkmode.json', // Replace with your light mode animation
-                  width: 24,
-                  height: 24,
-                  fit: BoxFit.cover,
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
         drawer: Drawer(
           child: ListView(

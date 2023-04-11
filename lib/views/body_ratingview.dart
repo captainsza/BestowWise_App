@@ -261,6 +261,7 @@ class _CategoryBodyState extends State<CategoryBody> {
                     children: imageUrls.map(
                       (url) {
                         final uri = Uri.parse(url);
+
                         final fileName = uri.pathSegments.last;
                         return Stack(
                           children: [
@@ -276,9 +277,27 @@ class _CategoryBodyState extends State<CategoryBody> {
                               right: 0,
                               child: Column(
                                 children: [
-                                  Text(
-                                    fileName,
-                                    style: const TextStyle(fontSize: 20),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10.0, horizontal: 20.0),
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 5.0, horizontal: 10.0),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      border: Border.all(
+                                        color: Colors.grey,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      fileName.split("/")[1],
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                        fontFamily: "Roboto",
+                                      ),
+                                    ),
                                   ),
                                   StarsRating(
                                     rating: (_itemRatings[fileName] ?? 0)

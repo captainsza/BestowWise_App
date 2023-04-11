@@ -9,6 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/auth/currentuserprofile.dart';
 import '../views/objectsview.dart';
+import 'googlemap.dart';
 import 'locationusing.dart';
 
 class UserAdd extends StatefulWidget {
