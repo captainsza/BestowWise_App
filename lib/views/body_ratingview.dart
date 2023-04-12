@@ -24,14 +24,12 @@ class _CategoryBodyState extends State<CategoryBody> {
   List<String> imageUrls = [];
   final PageController controller = PageController(initialPage: 0);
   double _ratingValue = 0;
-  final Map<String, double> _averageRating = {};
+  final Map<String, String> _averageRating = {};
   final Map<String, double> _itemRatings = {};
   String? selectedCategory, userId;
-
   @override
   void initState() {
     super.initState();
-
     userId = FirebaseAuth.instance.currentUser?.uid;
     getImageUrls();
     _imageUrlsStream = FirebaseStorage.instance
@@ -47,6 +45,33 @@ class _CategoryBodyState extends State<CategoryBody> {
           ),
         )
         .asBroadcastStream();
+  }
+
+  Future<void> getRatings(String fileName) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('categories')
+        .doc('Object Rating')
+        .collection('Ratings')
+        .where('name', isEqualTo: fileName)
+        .get();
+    if (snapshot.docs.isNotEmpty) {
+      final ratings = snapshot.docs.map((doc) => doc.data()).toList();
+      List allRatings = [];
+      for (final rating in ratings) {
+        allRatings.add(rating['rating']);
+      }
+      double ar = allRatings.reduce((a, b) => a + b) / allRatings.length;
+      String result;
+      List<String> parts = ar.toString().split('.');
+      if (parts.length > 1 && parts[1].length > 2) {
+        result = ar.toStringAsFixed(2);
+      } else {
+        result = ar.toString();
+      }
+      setState(() {
+        _averageRating[fileName] = result;
+      });
+    }
   }
 
   Future<void> getImageUrls() async {
@@ -263,6 +288,7 @@ class _CategoryBodyState extends State<CategoryBody> {
                         final uri = Uri.parse(url);
 
                         final fileName = uri.pathSegments.last;
+                        getRatings(fileName);
                         return Stack(
                           children: [
                             Positioned.fill(
@@ -313,6 +339,7 @@ class _CategoryBodyState extends State<CategoryBody> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       MultiStateButton(
+                                        key: ValueKey(controller),
                                         multiStateButtonController:
                                             multiStateButtonController,
                                         buttonStates: [
@@ -348,30 +375,11 @@ class _CategoryBodyState extends State<CategoryBody> {
                                               });
                                               _itemRatings[fileName] =
                                                   _ratingValue;
-
                                               // Count all ratings
-                                              double totalRatings = 0;
                                               _itemRatings
-                                                  .forEach((key, value) {
-                                                totalRatings += value;
-                                              });
-
+                                                  .forEach((key, value) {});
                                               // Calculate average rating
-                                              double averageRating =
-                                                  totalRatings /
-                                                      _itemRatings.length;
-                                              _averageRating[fileName] =
-                                                  averageRating;
-                                              await FirebaseFirestore.instance
-                                                  .collection("categories")
-                                                  .doc('Object Rating')
-                                                  .collection('Average Rating')
-                                                  .doc('avg ratings')
-                                                  .set({
-                                                "name": user?.name,
-                                                "rating": averageRating,
-                                                "object": fileName,
-                                              });
+                                              getRatings(fileName);
                                               multiStateButtonController
                                                   .setButtonState = _success;
                                             },
