@@ -15,6 +15,7 @@ class CategoryBody extends StatefulWidget {
 }
 
 class _CategoryBodyState extends State<CategoryBody> {
+  late final TextEditingController _textreview;
   static const String _submit = "Submit";
   static const String _loading = "Loading";
   static const String _success = "Success";
@@ -31,7 +32,8 @@ class _CategoryBodyState extends State<CategoryBody> {
   void initState() {
     super.initState();
     userId = FirebaseAuth.instance.currentUser?.uid;
-    getImageUrls();
+    _textreview = TextEditingController();
+
     _imageUrlsStream = FirebaseStorage.instance
         .ref()
         .child('images/')
@@ -47,7 +49,28 @@ class _CategoryBodyState extends State<CategoryBody> {
         .asBroadcastStream();
   }
 
+  @override
+  void dispose() {
+    _textreview.dispose();
+    super.dispose();
+  }
+// Future<String> getCaptionFromDatabase() async {
+//   final snapshot = await FirebaseFirestore.instance
+//       .collection('categories')
+//       .doc(selectedCategory)
+//       .collection('objects')
+//       .where('name',isEqualTo: )
+//       .get();
+
+//   final data = snapshot.data();
+//   return data?['caption'];
+// }
+
   Future<void> getRatings(String fileName) async {
+    if (_averageRating.containsKey(fileName)) {
+      // If the rating is already fetched for this file, return
+      return;
+    }
     final snapshot = await FirebaseFirestore.instance
         .collection('categories')
         .doc('Object Rating')
@@ -71,28 +94,6 @@ class _CategoryBodyState extends State<CategoryBody> {
       setState(() {
         _averageRating[fileName] = result;
       });
-    }
-  }
-
-  Future<void> getImageUrls() async {
-    final storageReference = FirebaseStorage.instance.ref().child('images/');
-    final result = await storageReference.listAll();
-    final urls =
-        await Future.wait(result.items.map((ref) => ref.getDownloadURL()));
-    setState(() {
-      imageUrls = urls;
-    });
-    final snapshot = await FirebaseFirestore.instance
-        .collection('categories')
-        .doc('Object Rating')
-        .collection('Rating')
-        .where('userId', isEqualTo: userId)
-        .get();
-    final ratings = snapshot.docs.map((doc) => doc.data()).toList();
-    for (final rating in ratings) {
-      final fileName = rating['name'];
-      final ratingValue = rating['rating'];
-      _itemRatings[fileName] = ratingValue;
     }
   }
 
@@ -335,6 +336,29 @@ class _CategoryBodyState extends State<CategoryBody> {
                                       });
                                     },
                                   ),
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(children: [
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        margin: const EdgeInsets.symmetric(
+                                            horizontal: 20),
+                                        child: TextField(
+                                          controller: _textreview,
+                                          decoration: InputDecoration(
+                                            hintText: 'enter your review',
+                                            border: OutlineInputBorder(
+                                              borderSide: const BorderSide(
+                                                  color: Colors.deepPurple),
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ]),
+                                  ),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -361,27 +385,82 @@ class _CategoryBodyState extends State<CategoryBody> {
                                                 FirebaseAuth.instance
                                                     .currentUser!.email!,
                                               );
-                                              await FirebaseFirestore.instance
-                                                  .collection('categories')
-                                                  .doc('Object Rating')
-                                                  .collection('Ratings')
-                                                  .add({
-                                                'name': fileName,
-                                                'rating': _ratingValue,
-                                                'userId': user?.email,
-                                                'username': user?.name,
-                                                'PublishDateTime':
-                                                    DateTime.now(),
-                                              });
-                                              _itemRatings[fileName] =
-                                                  _ratingValue;
-                                              // Count all ratings
-                                              _itemRatings
-                                                  .forEach((key, value) {});
-                                              // Calculate average rating
-                                              getRatings(fileName);
-                                              multiStateButtonController
-                                                  .setButtonState = _success;
+                                              final textreview =
+                                                  _textreview.text;
+
+                                              // Check if user has already given a rating for the file
+                                              final ratingSnapshot =
+                                                  await FirebaseFirestore
+                                                      .instance
+                                                      .collection('categories')
+                                                      .doc('Object Rating')
+                                                      .collection('Ratings')
+                                                      .where('userId',
+                                                          isEqualTo:
+                                                              user?.email)
+                                                      .where('name',
+                                                          isEqualTo: fileName)
+                                                      .get();
+                                              if (ratingSnapshot
+                                                  .docs.isNotEmpty) {
+                                                // ignore: use_build_context_synchronously
+                                                showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return AlertDialog(
+                                                      title: const Text(
+                                                          'Rating already given'),
+                                                      content: const Text(
+                                                          'You have already given a rating for this file. Do you want to update your rating?'),
+                                                      actions: <Widget>[
+                                                        TextButton(
+                                                          child:
+                                                              const Text('Yes'),
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          },
+                                                        ),
+                                                        TextButton(
+                                                          child:
+                                                              const Text('No'),
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          },
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                );
+                                              } else {
+                                                // User has not given a rating for this file yet, proceed with adding rating to database
+                                                await FirebaseFirestore.instance
+                                                    .collection('categories')
+                                                    .doc('Object Rating')
+                                                    .collection('Ratings')
+                                                    .add({
+                                                  'name': fileName,
+                                                  'rating': _ratingValue,
+                                                  'userId': user?.email,
+                                                  'username': user?.name,
+                                                  'PublishDateTime':
+                                                      DateTime.now(),
+                                                  'textReview': textreview,
+                                                });
+                                                _itemRatings[fileName] =
+                                                    _ratingValue;
+                                                // Count all ratings
+                                                _itemRatings
+                                                    .forEach((key, value) {});
+                                                // Calculate average rating
+                                                getRatings(fileName);
+                                                multiStateButtonController
+                                                    .setButtonState = _success;
+                                              }
                                             },
                                           ),
                                           const ButtonState(
@@ -454,26 +533,50 @@ class _CategoryBodyState extends State<CategoryBody> {
                                                         MainAxisSize.min,
                                                     children: ratings
                                                         .map(
-                                                            (rating) =>
-                                                                ListTile(
-                                                                  leading:
-                                                                      StarsRating(
-                                                                    rating:
-                                                                        rating['rating']?.toDouble() ??
-                                                                            0,
-                                                                    onRatingChanged:
-                                                                        (double
-                                                                            ratingVal) {},
+                                                          (rating) => Card(
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .all(
+                                                                      12.0),
+                                                              child: Column(
+                                                                children: [
+                                                                  ListTile(
+                                                                    leading:
+                                                                        StarsRating(
+                                                                      rating:
+                                                                          rating['rating']?.toDouble() ??
+                                                                              0,
+                                                                      onRatingChanged:
+                                                                          (double
+                                                                              ratingVal) {},
+                                                                    ),
+                                                                    title: Text(
+                                                                        rating['username'] ??
+                                                                            ''),
+                                                                    subtitle: Text(
+                                                                        rating['PublishDateTime']?.toDate().toString() ??
+                                                                            ''),
                                                                   ),
-                                                                  title: Text(
-                                                                      rating['username'] ??
-                                                                          ''),
-                                                                  subtitle: Text(
-                                                                      rating['PublishDateTime']
-                                                                              ?.toDate()
-                                                                              .toString() ??
-                                                                          ''),
-                                                                ))
+                                                                  const SizedBox(
+                                                                      height:
+                                                                          8),
+                                                                  Text(
+                                                                    rating['textReview'] ??
+                                                                        '',
+                                                                    maxLines: 2,
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .ellipsis,
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            16),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        )
                                                         .toList(),
                                                   ),
                                                 );
@@ -491,7 +594,8 @@ class _CategoryBodyState extends State<CategoryBody> {
                                   ),
                                   if (_averageRating[fileName] != null)
                                     Text(
-                                        'Average rating: ${_averageRating[fileName]}'),
+                                      'Average rating: ${_averageRating[fileName]}',
+                                    ),
                                   if (_itemRatings[fileName] != null)
                                     Text(
                                         'Your rating: ${_itemRatings[fileName]}'),

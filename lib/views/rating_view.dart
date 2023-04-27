@@ -167,30 +167,8 @@ class _RatingViewState extends State<RatingView> {
                   }
                 },
               ),
-              // const ExpansionTile(
-              //   title: Text(
-              //     'My List',
-              //   ),
-              // ),
-              // GestureDetector(
-              //   onTap: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => UserObjectScreen()),
-              //     );
-              //   },
-              //   child: Container(
-              //     padding: const EdgeInsets.symmetric(vertical: 8),
-              //     child: const Text(
-              //       'My Objects',
-              //       style: TextStyle(
-              //         fontWeight: FontWeight.bold,
-              //       ),
-              //     ),
-              //   ),
-              // ),
 
-              Lottie.asset('assets/LOTTIES/rateme.json')
+              // Lottie.asset('assets/LOTTIES/rateme.json')
             ],
           ),
         ),

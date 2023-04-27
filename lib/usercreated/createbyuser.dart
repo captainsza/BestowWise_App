@@ -167,8 +167,8 @@ class _UserAddState extends State<UserAdd> {
                 await FirebaseFirestore.instance.collection('categories').get();
             final categoryNames =
                 categories.docs.map((doc) => doc['name'] as String).toList();
-
             String objName = '';
+            String caption = '';
             String? imageUrl;
             String? selectedCategory;
             String? location = await getCurrentLocation();
@@ -240,15 +240,27 @@ class _UserAddState extends State<UserAdd> {
                                 context: context,
                                 builder: (context) {
                                   return AlertDialog(
-                                    title:
-                                        const Text('Enter your good caption!'),
+                                    title: const Text(
+                                        'Enter your good name and caption!'),
                                     content: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         TextField(
+                                          decoration: const InputDecoration(
+                                            hintText: 'enter your good name',
+                                          ),
                                           maxLength: 25,
                                           onChanged: (value) {
                                             objName = value;
+                                          },
+                                        ),
+                                        TextField(
+                                          decoration: const InputDecoration(
+                                            hintText:
+                                                'enter your good caption!',
+                                          ),
+                                          onChanged: (value) {
+                                            caption = value;
                                           },
                                         ),
                                         const SizedBox(height: 20.0),
@@ -322,6 +334,7 @@ class _UserAddState extends State<UserAdd> {
                                             'addedBy': user?.name,
                                             "location": location,
                                             'useremail': user?.email,
+                                            'caption': caption,
                                             'Mark_location': GeoPoint(
                                                 pickedLocation.latitude,
                                                 pickedLocation.longitude),
