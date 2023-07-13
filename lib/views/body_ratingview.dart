@@ -35,7 +35,7 @@ class _CategoryBodyState extends State<CategoryBody> {
     super.initState();
     userId = FirebaseAuth.instance.currentUser?.uid;
     _textreview = TextEditingController();
-
+    getImageUrls();
     _imageUrlsStream = FirebaseStorage.instance
         .ref()
         .child('images/')
@@ -86,6 +86,16 @@ class _CategoryBodyState extends State<CategoryBody> {
         _averageRating[fileName] = result;
       });
     }
+  }
+
+  Future<void> getImageUrls() async {
+    final storageReference = FirebaseStorage.instance.ref().child('images/');
+    final result = await storageReference.listAll();
+    final urls =
+        await Future.wait(result.items.map((ref) => ref.getDownloadURL()));
+    setState(() {
+      imageUrls = urls;
+    });
   }
 
   @override
