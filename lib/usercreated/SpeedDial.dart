@@ -1,3 +1,4 @@
+// ignore: file_names
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -99,9 +100,26 @@ class _UserAddState extends State<UserAdd> {
                   ),
                   actions: [
                     TextButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (validateCategoryName(categoryName)) {
                           Navigator.of(context).pop();
+
+                          categoryNames.add(categoryName);
+
+                          final user = await UserData.fetchUser(
+                              FirebaseAuth.instance.currentUser!.email!);
+                          await databaseReference.doc(categoryId).set({
+                            "index": index,
+                            "name": categoryName,
+                            "subjects": categorySubjects,
+                            'publishDateTime': DateTime.now(),
+                            'addedBy': user?.name,
+                            "location": location,
+                            'useremail': user?.email,
+                          });
+
+                          _isShowDial = !_isShowDial;
+                          setState(() {});
                         }
                       },
                       child: const Text('OK'),
@@ -110,49 +128,6 @@ class _UserAddState extends State<UserAdd> {
                 );
               },
             );
-
-            if (validateCategoryName(categoryName)) {
-              categoryNames.add(categoryName);
-
-              // ignore: use_build_context_synchronously
-              await showDialog<void>(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Category Role'),
-                    content: TextField(
-                      maxLength: 100,
-                      onChanged: (value) {
-                        categorySubjects = value.split(',');
-                      },
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  );
-                },
-              );
-
-              final user = await UserData.fetchUser(
-                  FirebaseAuth.instance.currentUser!.email!);
-              await databaseReference.doc(categoryId).set({
-                "index": index,
-                "name": categoryName,
-                "subjects": categorySubjects,
-                'publishDateTime': DateTime.now(),
-                'addedBy': user?.name,
-                "location": location,
-                'useremail': user?.email,
-              });
-            }
-
-            _isShowDial = !_isShowDial;
-            setState(() {});
           },
           backgroundColor: Colors.orange,
           tooltip: 'Add Categories',

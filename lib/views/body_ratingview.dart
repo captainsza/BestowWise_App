@@ -16,9 +16,11 @@ class CategoryBody extends StatefulWidget {
 
 class _CategoryBodyState extends State<CategoryBody> {
   late final TextEditingController _textreview;
+
   static const String _submit = "Submit";
   static const String _loading = "Loading";
   static const String _success = "Success";
+  bool isRatingGiven = false;
   final MultiStateButtonController multiStateButtonController =
       MultiStateButtonController(initialStateName: _submit);
   late Stream<List<String>> _imageUrlsStream;
@@ -54,17 +56,6 @@ class _CategoryBodyState extends State<CategoryBody> {
     _textreview.dispose();
     super.dispose();
   }
-// Future<String> getCaptionFromDatabase() async {
-//   final snapshot = await FirebaseFirestore.instance
-//       .collection('categories')
-//       .doc(selectedCategory)
-//       .collection('objects')
-//       .where('name',isEqualTo: )
-//       .get();
-
-//   final data = snapshot.data();
-//   return data?['caption'];
-// }
 
   Future<void> getRatings(String fileName) async {
     if (_averageRating.containsKey(fileName)) {
@@ -281,64 +272,162 @@ class _CategoryBodyState extends State<CategoryBody> {
                     return const Center(child: CircularProgressIndicator());
                   }
                   final imageUrls = snapshot.data!;
-                  return PageView(
+                  return PageView.builder(
                     controller: controller,
                     scrollDirection: Axis.vertical,
-                    children: imageUrls.map(
-                      (url) {
-                        final uri = Uri.parse(url);
+                    itemCount: imageUrls.length,
+                    itemBuilder: (context, index) {
+                      final url = imageUrls[index];
+                      final uri = Uri.parse(url);
+                      final fileName = uri.pathSegments.last;
+                      getRatings(fileName);
 
-                        final fileName = uri.pathSegments.last;
-                        getRatings(fileName);
-                        return Stack(
-                          children: [
-                            Positioned.fill(
-                              child: Image.network(
-                                url,
-                                fit: BoxFit.cover,
-                              ),
+                      final multiStateButtonController =
+                          MultiStateButtonController(initialStateName: _submit);
+
+                      return Stack(
+                        children: [
+                          Positioned.fill(
+                            child: Image.network(
+                              url,
+                              fit: BoxFit.cover,
                             ),
-                            Positioned(
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
-                              child: Column(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10.0, horizontal: 20.0),
-                                    margin: const EdgeInsets.symmetric(
-                                        vertical: 5.0, horizontal: 10.0),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      border: Border.all(
-                                        color: Colors.grey,
-                                        width: 1.0,
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10.0, horizontal: 20.0),
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 5.0, horizontal: 10.0),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10.0, horizontal: 20.0),
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 5.0, horizontal: 10.0),
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        border: Border.all(
+                                          color: Colors.grey,
+                                          width: 1.0,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        fileName.split("/")[1],
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                          fontFamily: "Roboto",
+                                        ),
                                       ),
                                     ),
-                                    child: Text(
-                                      fileName.split("/")[1],
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                        fontFamily: "Roboto",
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        final snapshot = await FirebaseFirestore
+                                            .instance
+                                            .collection('categories')
+                                            .doc('Object Rating')
+                                            .collection('Ratings')
+                                            .where('name', isEqualTo: fileName)
+                                            .get();
+                                        if (snapshot.docs.isNotEmpty) {
+                                          final ratings = snapshot.docs
+                                              .map((doc) => doc.data())
+                                              .toList();
+                                          // ignore: use_build_context_synchronously
+                                          showModalBottomSheet<void>(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return SingleChildScrollView(
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: ratings
+                                                      .map(
+                                                        (rating) => Card(
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(12.0),
+                                                            child: Column(
+                                                              children: [
+                                                                ListTile(
+                                                                  leading:
+                                                                      StarsRating(
+                                                                    rating:
+                                                                        rating['rating']?.toDouble() ??
+                                                                            0,
+                                                                    onRatingChanged:
+                                                                        (double
+                                                                            ratingVal) {},
+                                                                  ),
+                                                                  title: Text(
+                                                                      rating['username'] ??
+                                                                          ''),
+                                                                  subtitle: Text(
+                                                                      rating['PublishDateTime']
+                                                                              ?.toDate()
+                                                                              .toString() ??
+                                                                          ''),
+                                                                ),
+                                                                const SizedBox(
+                                                                    height: 8),
+                                                                Text(
+                                                                  rating['textReview'] ??
+                                                                      '',
+                                                                  maxLines: 2,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          16),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      )
+                                                      .toList(),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color.fromARGB(
+                                            0, 252, 250, 250),
                                       ),
+                                      child: const Icon(Icons.person),
                                     ),
-                                  ),
-                                  StarsRating(
-                                    rating: (_itemRatings[fileName] ?? 0)
-                                        .toDouble(),
-                                    onRatingChanged: (double rating) {
-                                      setState(() {
-                                        _itemRatings[fileName] = rating;
-                                        _ratingValue = rating;
-                                      });
-                                    },
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    child: Column(children: [
+                                  ],
+                                ),
+                                StarsRating(
+                                  rating:
+                                      (_itemRatings[fileName] ?? 0).toDouble(),
+                                  onRatingChanged: (double rating) {
+                                    setState(() {
+                                      _itemRatings[fileName] = rating;
+                                      _ratingValue = rating;
+                                    });
+                                  },
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Column(
+                                    children: [
                                       Container(
                                         width:
                                             MediaQuery.of(context).size.width,
@@ -357,21 +446,21 @@ class _CategoryBodyState extends State<CategoryBody> {
                                           ),
                                         ),
                                       ),
-                                    ]),
+                                    ],
                                   ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      MultiStateButton(
-                                        key: ValueKey(controller),
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: MultiStateButton(
+                                        key: ValueKey(fileName),
                                         multiStateButtonController:
                                             multiStateButtonController,
                                         buttonStates: [
                                           ButtonState(
                                             stateName: _submit,
-                                            child: const Text(
-                                              _submit,
-                                            ),
+                                            child: const Text(_submit),
                                             textStyle: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 20),
@@ -401,6 +490,7 @@ class _CategoryBodyState extends State<CategoryBody> {
                                                       .where('name',
                                                           isEqualTo: fileName)
                                                       .get();
+
                                               if (ratingSnapshot
                                                   .docs.isNotEmpty) {
                                                 // ignore: use_build_context_synchronously
@@ -421,6 +511,10 @@ class _CategoryBodyState extends State<CategoryBody> {
                                                             Navigator.of(
                                                                     context)
                                                                 .pop();
+                                                            // Reset button state
+                                                            multiStateButtonController
+                                                                    .setButtonState =
+                                                                _submit;
                                                           },
                                                         ),
                                                         TextButton(
@@ -430,6 +524,10 @@ class _CategoryBodyState extends State<CategoryBody> {
                                                             Navigator.of(
                                                                     context)
                                                                 .pop();
+                                                            // Reset button state
+                                                            multiStateButtonController
+                                                                    .setButtonState =
+                                                                _submit;
                                                           },
                                                         ),
                                                       ],
@@ -437,7 +535,7 @@ class _CategoryBodyState extends State<CategoryBody> {
                                                   },
                                                 );
                                               } else {
-                                                // User has not given a rating for this file yet, proceed with adding rating to database
+                                                // User has not given a rating for this file yet, proceed with adding rating to the database
                                                 await FirebaseFirestore.instance
                                                     .collection('categories')
                                                     .doc('Object Rating')
@@ -486,12 +584,8 @@ class _CategoryBodyState extends State<CategoryBody> {
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
                                               children: const [
-                                                Text(
-                                                  _success,
-                                                ),
-                                                SizedBox(
-                                                  width: 16,
-                                                ),
+                                                Text(_success),
+                                                SizedBox(width: 16),
                                                 Icon(
                                                   Icons.check,
                                                   color: Colors.white,
@@ -503,109 +597,31 @@ class _CategoryBodyState extends State<CategoryBody> {
                                                 fontSize: 22),
                                             color: Colors.transparent,
                                             size: const Size(200, 48),
-                                            onPressed: () =>
+                                            onPressed: () {
+                                              if (!isRatingGiven) {
                                                 multiStateButtonController
-                                                    .setButtonState = _submit,
+                                                    .setButtonState = _submit;
+                                              }
+                                            },
                                           ),
                                         ],
                                       ),
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          final snapshot =
-                                              await FirebaseFirestore.instance
-                                                  .collection('categories')
-                                                  .doc('Object Rating')
-                                                  .collection('Ratings')
-                                                  .where('name',
-                                                      isEqualTo: fileName)
-                                                  .get();
-                                          if (snapshot.docs.isNotEmpty) {
-                                            final ratings = snapshot.docs
-                                                .map((doc) => doc.data())
-                                                .toList();
-                                            // ignore: use_build_context_synchronously
-                                            showModalBottomSheet<void>(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return SingleChildScrollView(
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: ratings
-                                                        .map(
-                                                          (rating) => Card(
-                                                            child: Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .all(
-                                                                      12.0),
-                                                              child: Column(
-                                                                children: [
-                                                                  ListTile(
-                                                                    leading:
-                                                                        StarsRating(
-                                                                      rating:
-                                                                          rating['rating']?.toDouble() ??
-                                                                              0,
-                                                                      onRatingChanged:
-                                                                          (double
-                                                                              ratingVal) {},
-                                                                    ),
-                                                                    title: Text(
-                                                                        rating['username'] ??
-                                                                            ''),
-                                                                    subtitle: Text(
-                                                                        rating['PublishDateTime']?.toDate().toString() ??
-                                                                            ''),
-                                                                  ),
-                                                                  const SizedBox(
-                                                                      height:
-                                                                          8),
-                                                                  Text(
-                                                                    rating['textReview'] ??
-                                                                        '',
-                                                                    maxLines: 2,
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .ellipsis,
-                                                                    style: const TextStyle(
-                                                                        fontSize:
-                                                                            16),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        )
-                                                        .toList(),
-                                                  ),
-                                                );
-                                              },
-                                            );
-                                          }
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color.fromARGB(
-                                              0, 252, 250, 250),
-                                        ),
-                                        child: const Icon(Icons.person),
-                                      ),
-                                    ],
-                                  ),
-                                  if (_averageRating[fileName] != null)
-                                    Text(
-                                      'Average rating: ${_averageRating[fileName]}',
                                     ),
-                                  if (_itemRatings[fileName] != null)
-                                    Text(
-                                        'Your rating: ${_itemRatings[fileName]}'),
-                                ],
-                              ),
+                                  ],
+                                ),
+                                if (_averageRating[fileName] != null)
+                                  Text(
+                                    'Average rating: ${_averageRating[fileName]}',
+                                  ),
+                                if (_itemRatings[fileName] != null)
+                                  Text(
+                                      'Your rating: ${_itemRatings[fileName]}'),
+                              ],
                             ),
-                          ],
-                        );
-                      },
-                    ).toList(),
+                          ),
+                        ],
+                      );
+                    },
                   );
                 },
               ),
